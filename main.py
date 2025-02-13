@@ -1,4 +1,5 @@
 import pygame
+import Score
 def run():
     pygame.init()
     screen = pygame.display.set_mode((800, 800))
