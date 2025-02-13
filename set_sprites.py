@@ -1,6 +1,9 @@
 import pygame
 from abc import ABC, abstractmethod
 
+tile_size = 8
+big_tile_size = tile_size * 2
+
 class Game_Sprite(pygame.sprite.Sprite):
     def __init__(self, pos, width, height, src):
         super().__init__()
@@ -37,15 +40,42 @@ class Hero(Entity):
         if isinstance(spawnpoint, pygame.Vector2):
             self.spawnpoint = spawnpoint
 
-class Obstacles(Game_Sprite):
-    @abstractmethod
-    def collide(self, entity):
-        pass
+class Obstacle(Game_Sprite):
+    pass
 
-class Wall(Obstacles):
-    def __init__(self, pos, width, height, src = "assets/blocks/brick.png"):
-        super().__init__(pos, width, height, src)
+class Brick(Obstacle):
+    def __init__(self, pos):
+        super().__init__(pos, tile_size, tile_size, "assets/blocks/brick.png")
+    
+    # ДОБАВИТЬ после пуль
+    # def destroy():
+    #     pass
 
-    def collide(self, entity):
-        if isinstance(entity, Hero):
-            pass
+class Wall(Obstacle):
+    def __init__(self, pos):
+        super().__init__(pos, tile_size, tile_size, "assets/blocks/wall.png")
+
+class Base(Obstacle):
+    def __init__(self, pos):
+        super().__init__(pos, big_tile_size, big_tile_size, "assets/blocks/base.png")
+
+    # ДОБАВИТЬ смерть после пуль
+
+
+class CollideManager:
+    @staticmethod
+    def checkCollide(entity, obstacle):
+        if not (isinstance(entity, Entity) and isinstance(obstacle, Obstacle)):
+            raise TypeError("First arg must be Entity, the second one must be Obstacle")
+        
+        if isinstance(entity, Hero): #or isinstance(entity, Enemy)
+            return True
+        # elif isinstance(entity, Bullet):
+        #     if isinstance(obstacle, Water):
+        #         return False
+        #     elif isinstance(obstacle, Brick):
+        #         obstacle.destroy()
+        #         return True
+        #     else:
+        #         return True
+        raise TypeError("Not correct Entity object")
