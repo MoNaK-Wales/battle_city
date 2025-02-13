@@ -1,48 +1,54 @@
 import pygame
-from Score import Scores
+import sys
 
-# ...existing code...
+def show_menu(screen):
+    menu_font = pygame.font.SysFont(None, 48)
+    start_button = menu_font.render('Почати', True, (255, 255, 255), (0, 0, 0))
+    start_button_rect = start_button.get_rect()
+    start_button_rect.center = screen.get_rect().center
+
+    # Завантаження вашої картинки
+    background_image = pygame.image.load('images.png')
+    background_rect = background_image.get_rect()
+    background_rect.center = screen.get_rect().center
+
+    while True:
+        screen.fill((0, 0, 0))
+        screen.blit(background_image, background_rect)
+        screen.blit(start_button, start_button_rect)
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = event.pos
+                if start_button_rect.collidepoint(mouse_x, mouse_y):
+                    return  # Вихід з меню і початок гри
 
 def run_game():
     pygame.init()
     screen = pygame.display.set_mode((800, 600))
     pygame.display.set_caption("Battle City")
     
-    stats = GameStats()
-    scores = Scores(screen, stats)
-    
-    # Змінна для відстеження стану паузи
-    game_paused = False
-    
-    # Спрайт паузи
-    pause_image = pygame.image.load('pause.png')
-    pause_rect = pause_image.get_rect()
-    pause_rect.center = screen.get_rect().center
+    # Показати меню перед початком гри
+    show_menu(screen)
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    game_paused = not game_paused
         
-        if not game_paused:
-            # Оновлення гри
-            # ...existing game update logic...
-            pass
+        # Оновлення гри
+        # ...existing game update logic...
         
         # Очищення екрану
         screen.fill((0, 0, 0))
         
-        if game_paused:
-            # Відображення спрайту паузи
-            screen.blit(pause_image, pause_rect)
-        else:
-            # Відображення гри
-            scores.show_score()
-            # ...existing game draw logic...
+        # Відображення гри
+        # ...existing game draw logic...
         
         pygame.display.flip()
 
