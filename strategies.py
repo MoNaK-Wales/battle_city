@@ -1,6 +1,6 @@
 import pygame 
 import pygame.math
-from battle_city.settings import *
+from battle_city.constants import *
 from abc import ABC, abstractmethod
 
 
