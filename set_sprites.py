@@ -1,5 +1,4 @@
 import pygame
-import strategies
 from abc import ABC, abstractmethod
 
 tile_size = 8
@@ -30,8 +29,8 @@ class Entity(Game_Sprite):
         self.strategy.move()
 
 class Hero(Entity):
-    def __init__(self, pos, hp, spawnpoint):
-        super().__init__(pos, big_tile_size, big_tile_size, "assets/tanks/hero_anim1.png", strategies.Controll_Strategy(self), 2)
+    def __init__(self, pos, width, height, src, strategy, speed, hp, spawnpoint):
+        super().__init__(pos, width, height, src, strategy, speed)
 
         self.hp = hp
         self.active_collectables = []
