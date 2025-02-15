@@ -1,13 +1,12 @@
 import pygame 
 import pygame.math
-from battle_city.constants import *
+from constants import *
 from abc import ABC, abstractmethod
 
 
 
 class Move_Strategy(ABC):
     def __init__(self, entity):
-
         self.entity = entity
     
     @abstractmethod
