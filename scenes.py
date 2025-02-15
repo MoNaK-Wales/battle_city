@@ -1,7 +1,8 @@
 import pygame
 import sys
-import constants
+from constants import *
 from abc import ABC, abstractmethod
+
 
 
 
@@ -31,20 +32,20 @@ class Menu(SceneBase):
         self.screen = screen
         self.scene_manager = scene_manager
 
-        self.background_color = constants.black
+        self.background_color = black
 
-        self.menu_font = pygame.font.Font(constants.NES_font, 32)
-        self.start_button = self.menu_font.render('START GAME', False, constants.white, constants.black)
+        self.menu_font = pygame.font.Font(NES_font, font_size * sc_scale)
+        self.start_button = self.menu_font.render('START GAME', False, white, black)
         self.start_button_rect = self.start_button.get_rect()
-        self.start_button_rect.center = (400, 700)
+        self.start_button_rect.center = (sc_x_obj / 2, sc_y_obj * 0.8)
 
-        self.logo = pygame.image.load("assets/misc/logo.png").convert()
+        self.logo = pygame.transform.scale_by(pygame.image.load("assets/misc/logo.png").convert(), 0.35 * sc_scale)
         self.logo_rect = self.logo.get_rect()
-        self.logo_rect.center = (400, 550)
+        self.logo_rect.center = (sc_x_obj / 2, sc_y_obj * 0.540)
         
-        self.tank_logo = pygame.transform.scale_by(pygame.image.load("assets/misc/tank_logo.png").convert(), 0.75)
+        self.tank_logo = pygame.transform.scale_by(pygame.image.load("assets/misc/tank_logo.png").convert(), 0.14 * sc_scale)
         self.tank_logo_rect = self.tank_logo.get_rect()
-        self.tank_logo_rect.center = (400, 225)
+        self.tank_logo_rect.center = (sc_x_obj / 2, sc_y_obj * 0.2)
 
     def render(self):
         self.screen.fill(self.background_color)
@@ -76,23 +77,23 @@ class Stage(SceneBase):
         self.scene_manager = scene_manager
         self.map = map
 
-        self.background_color = constants.black
+        self.background_color = black
 
-        self.top_hud = pygame.Surface((800, 48))
-        self.top_hud.fill(constants.grey)
-        self.left_hud = pygame.Surface((48, 800))
-        self.left_hud.fill(constants.grey)
-        self.bottom_hud = pygame.Surface((800, 48))
-        self.bottom_hud.fill(constants.grey)
-        self.right_hud = pygame.Surface((96, 800))
-        self.right_hud.fill(constants.grey)
+        self.top_hud = pygame.Surface((sc_x_obj, hud_width))
+        self.top_hud.fill(grey)
+        self.left_hud = pygame.Surface((hud_width, sc_y_obj))
+        self.left_hud.fill(grey)
+        self.bottom_hud = pygame.Surface((sc_x_obj, hud_width ))
+        self.bottom_hud.fill(grey)
+        self.right_hud = pygame.Surface((hud_width * 2, sc_y_obj))
+        self.right_hud.fill(grey)
 
     def render(self):
-        self.screen.fill(constants.black)
+        self.screen.fill(black)
         self.screen.blit(self.top_hud, (0, 0))
         self.screen.blit(self.left_hud, (0, 0))
-        self.screen.blit(self.right_hud, (704, 0))
-        self.screen.blit(self.top_hud, (0, 752))
+        self.screen.blit(self.right_hud, (sc_x_obj - hud_width, 0))
+        self.screen.blit(self.bottom_hud, (0, sc_y_obj - hud_width))
 
     def handle_event(self, event):
         pass

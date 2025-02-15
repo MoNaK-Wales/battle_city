@@ -6,8 +6,8 @@ from abc import ABC, abstractmethod
 
 
 class Move_Strategy(ABC):
-    def __init__(self, move, entity):
-        self.move = move
+    def __init__(self, entity):
+
         self.entity = entity
     
     @abstractmethod
