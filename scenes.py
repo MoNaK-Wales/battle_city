@@ -4,6 +4,7 @@ import constants
 from abc import ABC, abstractmethod
 
 
+
 class SceneBase(ABC):
     @abstractmethod
     def render(self):

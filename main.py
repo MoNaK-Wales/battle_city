@@ -1,6 +1,10 @@
 import pygame
 import sys
 from scenes import *
+from constants import *
+
+
+
 
 # def show_menu(screen):
 #     # menu_font = pygame.font.SysFont(None, 48)
@@ -45,7 +49,7 @@ from scenes import *
 
 def run_game():
     pygame.init()
-    screen = pygame.display.set_mode((800, 800))  #ВЫБРАТЬ РАЗРЕШЕНИЕ
+    screen = pygame.display.set_mode(sc_size)  #ВЫБРАТЬ РАЗРЕШЕНИЕ
     pygame.display.set_caption("Battle City")
 
     scene_manager = SceneManager(screen)
