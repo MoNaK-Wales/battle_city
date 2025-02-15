@@ -1,5 +1,6 @@
 import pygame
 import strategies
+import constants
 from abc import ABC, abstractmethod
 
 tile_size = 8
@@ -8,34 +9,39 @@ big_tile_size = tile_size * 2
 class Game_Sprite(pygame.sprite.Sprite):
     def __init__(self, pos, width, height, src):
         super().__init__()
-        self.pos = pos
+
+        self.pos = pygame.Vector2(pos)
         self.width = width
         self.height = height
-        self.direction_dict = {"up"}
-        self.image = pygame.transform.scale(pygame.image.load(src), (width, height))
+        # self.direction_dict = {"up"}
+        self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale)
         self.rect = self.image.get_rect()
 
     def rotate(self, angle):
         self.image = pygame.transform.rotate(self.image, angle)
         self.rect = self.image.get_rect(center=self.rect.center)
 
+    def draw(self, screen):
+        self.rect.center = self.pos
+        screen.blit(self.image, self.rect)
+
 class Entity(Game_Sprite):
     def __init__(self, pos, width, height, src, strategy, speed):
         super().__init__(pos, width, height, src)
 
-        self.strategy = strategy
-        self.speed = speed
+        self.speed = 0.1 * speed * constants.sc_scale
+        self.strategy = strategy(self)
 
     def move(self):
         self.strategy.move()
 
 class Hero(Entity):
-    def __init__(self, pos, hp, spawnpoint):
-        super().__init__(pos, big_tile_size, big_tile_size, "assets/tanks/hero_anim1.png", strategies.Controll_Strategy(self), 2)
+    def __init__(self, pos, hp):
+        super().__init__(pos, big_tile_size, big_tile_size, "assets/tanks/hero_anim1.png", strategies.Controll_Strategy, 2)
 
         self.hp = hp
         self.active_collectables = []
-        self.spawnpoint = spawnpoint
+        self.spawnpoint = pos
 
     def change_spawnpoint(self, spawnpoint):
         if isinstance(spawnpoint, pygame.Vector2):

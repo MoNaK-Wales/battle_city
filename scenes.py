@@ -1,6 +1,7 @@
 import pygame
 import sys
 from constants import *
+from set_sprites import *
 from abc import ABC, abstractmethod
 
 
@@ -8,23 +9,23 @@ from abc import ABC, abstractmethod
 
 class SceneBase(ABC):
     @abstractmethod
-    def render(self):
+    def setup(self):        #перед загрузкой сцены
         pass
-    
-    @abstractmethod
-    def update(self):
-        pass
-    
+
     @abstractmethod
     def handle_event(self, event):
         pass
 
     @abstractmethod
-    def setup(self):
+    def update(self):       #обробатывает данные каждый цикл
+        pass
+
+    @abstractmethod
+    def render(self):       #прорисовывает обновлённые данные каждый цикл
         pass
     
     @abstractmethod
-    def cleanup(self):
+    def cleanup(self):      #перед переключением сцены на другую
         pass
 
 class Menu(SceneBase):
@@ -47,7 +48,7 @@ class Menu(SceneBase):
         self.tank_logo_rect = self.tank_logo.get_rect()
         self.tank_logo_rect.center = (sc_x_obj / 2, sc_y_obj * 0.2)
 
-    def render(self):
+    def setup(self):
         self.screen.fill(self.background_color)
         self.screen.blit(self.start_button, self.start_button_rect)
         self.screen.blit(self.logo, self.logo_rect)
@@ -62,10 +63,10 @@ class Menu(SceneBase):
             if event.key == pygame.K_KP_ENTER:
                 self.scene_manager.switch_scene("Stage 1")
 
-    def update(self):
+    def render(self):
         pass
 
-    def setup(self):
+    def update(self):
         pass
 
     def cleanup(self):
@@ -88,21 +89,27 @@ class Stage(SceneBase):
         self.right_hud = pygame.Surface((hud_width * 2, sc_y_obj))
         self.right_hud.fill(grey)
 
+        self.hero = Hero((sc_x_obj / 2, sc_y_obj / 2), 3)
+        self.group = pygame.sprite.Group([self.hero])
+
+    def setup(self):
+        pass
+
+    def update(self):
+        self.hero.move()
+
     def render(self):
+        # self.group.draw(self.screen)
         self.screen.fill(black)
         self.screen.blit(self.top_hud, (0, 0))
         self.screen.blit(self.left_hud, (0, 0))
         self.screen.blit(self.right_hud, (sc_x_obj - hud_width * 2, 0))
         self.screen.blit(self.bottom_hud, (0, sc_y_obj - hud_width))
+        self.hero.draw(self.screen)
 
     def handle_event(self, event):
         pass
 
-    def update(self):
-        pass
-
-    def setup(self):
-        pass
 
     def cleanup(self):
         pass
@@ -126,9 +133,11 @@ class SceneManager:
 
         if self.current_scene is not None:
             self.current_scene.setup()
+        else:
+            print("Name is not found")
 
     def run_current_scene(self):
-        if self.current_scene:
+        if self.current_scene is not None:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
