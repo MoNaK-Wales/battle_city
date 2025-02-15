@@ -46,6 +46,7 @@ class Hero(Entity):
     def change_spawnpoint(self, spawnpoint):
         if isinstance(spawnpoint, pygame.Vector2):
             self.spawnpoint = spawnpoint
+    
 
 class Obstacle(Game_Sprite):
     pass
