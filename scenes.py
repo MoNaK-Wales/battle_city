@@ -92,7 +92,7 @@ class Stage(SceneBase):
         self.screen.fill(black)
         self.screen.blit(self.top_hud, (0, 0))
         self.screen.blit(self.left_hud, (0, 0))
-        self.screen.blit(self.right_hud, (sc_x_obj - hud_width, 0))
+        self.screen.blit(self.right_hud, (sc_x_obj - hud_width * 2, 0))
         self.screen.blit(self.bottom_hud, (0, sc_y_obj - hud_width))
 
     def handle_event(self, event):
