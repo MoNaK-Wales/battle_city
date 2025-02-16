@@ -12,7 +12,7 @@ class Game_Sprite(pygame.sprite.Sprite):
 
         self.pos = pygame.Vector2(pos)
         self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale)
-        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect(center = self.pos)
 
     def draw(self, screen):
         self.rect.center = self.pos
@@ -22,14 +22,14 @@ class Entity(Game_Sprite):
     def __init__(self, pos, src, strategy, speed):
         super().__init__(pos, src)
 
-        self.speed = 0.01 * speed * constants.sc_scale
+        self.speed = constants.speed * speed * constants.sc_scale
         self.strategy = strategy(self)
 
         self.angle = 0
         self.angle_dict = {"up": 0, "right": 90, "down": 180, "left": 270}
 
-    def move(self):
-        self.strategy.move()
+    def move(self, obstacles):
+        self.strategy.move(obstacles)
 
     def rotate(self, angle):
         target_angle = self.angle_dict[angle]
@@ -39,7 +39,7 @@ class Entity(Game_Sprite):
         self.rect = self.image.get_rect(center=self.rect.center)
 
 class Hero(Entity):
-    def __init__(self, pos, hp):
+    def __init__(self, pos, hp = 3):
         super().__init__(pos, "assets/tanks/hero_anim1.png", strategies.Controll_Strategy, 2)
 
         self.hp = hp
@@ -76,11 +76,13 @@ class Base(Obstacle):
 class CollideManager:
     @staticmethod
     def checkCollide(entity, obstacle):
-        if not (isinstance(entity, Entity) and isinstance(obstacle, Obstacle)):
-            raise TypeError("First arg must be Entity, the second one must be Obstacle")
+        if not (isinstance(entity, Entity) and (isinstance(obstacle, Obstacle) or isinstance(obstacle, pygame.Rect))):
+            raise TypeError("First arg must be Entity, the second one must be Obstacle (or just Rect for HUD)")
         
-        if isinstance(entity, Hero): #or isinstance(entity, Enemy)
-            return True
+        if isinstance(obstacle, pygame.Rect):
+            return entity.rect.colliderect(obstacle)
+        # if isinstance(entity, Hero): #or isinstance(entity, Enemy)
+        #     return True
         # elif isinstance(entity, Bullet):
         #     if isinstance(obstacle, Water):
         #         return False

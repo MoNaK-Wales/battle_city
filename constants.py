@@ -23,3 +23,6 @@ NES_font = "assets/fonts/nes-font.ttf"
 
 #strategies
 Pause = False
+
+#sprites
+speed = 0.03

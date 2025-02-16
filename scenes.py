@@ -89,6 +89,10 @@ class Stage(SceneBase):
         self.right_hud = pygame.Surface((hud_width * 2, sc_y_obj))
         self.right_hud.fill(grey)
 
+        self.obstacles = [self.top_hud.get_rect(), self.left_hud.get_rect(), 
+                          self.bottom_hud.get_rect(topleft = (0, sc_y_obj - hud_width)), 
+                          self.right_hud.get_rect(topleft = (sc_x_obj - hud_width * 2, 0))]
+
         self.hero = Hero((sc_x_obj / 2, sc_y_obj / 2), 3)
         self.group = pygame.sprite.Group([self.hero])
 
@@ -96,7 +100,7 @@ class Stage(SceneBase):
         pass
 
     def update(self):
-        self.hero.move()
+        self.hero.move(self.obstacles)
 
     def render(self):
         self.screen.fill(black)

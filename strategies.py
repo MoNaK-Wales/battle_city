@@ -16,16 +16,22 @@ class Move_Strategy(ABC):
         self.directions = {"down": (0, self.speed), "right": (self.speed, 0), "up": (0, -self.speed), "left": (-self.speed, 0)}
     
     @abstractmethod
-    def move(self):
+    def move(self, obstacles):
         pass
 
 class Controll_Strategy(Move_Strategy):
-    def move_player(self, direction_name):
-        self.entity.pos += self.directions[direction_name]
-        self.entity.rotate(direction_name)
+    def move_player(self, direction_name, obstacles):
+        new_pos = self.entity.pos + self.directions[direction_name]
 
+        collides = []
+        for obstacle in obstacles:
+            collides.append(set_sprites.CollideManager.checkCollide(set_sprites.Hero(new_pos), obstacle))
 
-    def move(self):
+        if not any(collides):
+            self.entity.pos = new_pos
+            self.entity.rotate(direction_name)
+
+    def move(self, obstacles):
         keys = pygame.key.get_pressed()
         
         # добавити паузу!!!!!!!!
@@ -36,16 +42,16 @@ class Controll_Strategy(Move_Strategy):
         
         #рух гравця по клавішам 
         if keys[pygame.K_w] or keys[pygame.K_UP]:
-            self.move_player("up")
+            self.move_player("up", obstacles)
             
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            self.move_player("down")
+            self.move_player("down", obstacles)
                         
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            self.move_player("left")
+            self.move_player("left", obstacles)
                     
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            self.move_player("right")
+            self.move_player("right", obstacles)
             
             
         # стрільба
