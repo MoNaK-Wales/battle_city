@@ -1,6 +1,7 @@
 import pygame
 from scenes import *
 from constants import *
+from bullets import *
 
 
 def run_game():
