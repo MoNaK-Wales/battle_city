@@ -13,8 +13,6 @@ class Move_Strategy(ABC):
         self.entity = entity
         self.speed = self.entity.speed
 
-        logger.info(f"Strategy was created for enity {self.entity} with speed {self.speed}")
-
         self.directions = {
             "down": (0, self.speed),
             "right": (self.speed, 0),
@@ -29,21 +27,18 @@ class Move_Strategy(ABC):
 
 class Controll_Strategy(Move_Strategy):
     def move_player(self, direction_name, obstacles):
-        logger.debug(f"Trying to move player {direction_name}")
         new_pos = self.entity.pos + self.directions[direction_name]
-        logger.debug(f"New pos will be {new_pos}")
 
         collides = []
         for obstacle in obstacles:
             collide = set_sprites.CollideManager.checkCollide(set_sprites.Hero(new_pos), obstacle)
-            logger.debug(f"Checking collision for new_pos and {obstacle}: {collide}")
             collides.append(collide)
 
         if not any(collides):
-            logger.debug(f"Moving player")
             self.entity.pos = new_pos
-            
-        self.entity.rotate(direction_name)
+        
+        if self.entity.angle != self.entity.angle_dict[direction_name][0]:
+            self.entity.rotate(direction_name)
 
     def move(self, obstacles):
         keys = pygame.key.get_pressed()

@@ -11,7 +11,6 @@ class Game_Sprite(pygame.sprite.Sprite):
         self.pos = pygame.Vector2(pos)
         self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale)
         self.rect = self.image.get_rect(center=self.pos)
-        constants.logger.debug(f"INIT sprite: image and rect of {self}: {self.image}, {self.rect}")
 
     def draw(self, screen):
         self.rect.center = self.pos
@@ -42,7 +41,7 @@ class Entity(Game_Sprite):
         target_angle, target_mirror = self.angle_dict[angle]
         delta_angle = target_angle - self.angle
         self.angle = target_angle
-        constants.logger.debug(f"Target angle - {target_mirror}; delta - {delta_angle}")
+        constants.logger.debug(f"Target angle - {target_angle}; delta - {delta_angle}")
 
         self.image = pygame.transform.rotate(self.image, -delta_angle)
         self.rect = self.image.get_rect(center=self.rect.center)
@@ -66,8 +65,6 @@ class Hero(Entity):
         self.hp = hp
         self.active_collectables = []
         self.spawnpoint = pos
-
-        constants.logger.info("Hero created")
 
     def change_spawnpoint(self, spawnpoint):
         if isinstance(spawnpoint, pygame.Vector2):
@@ -104,14 +101,12 @@ class Base(Obstacle):
 class CollideManager:
     @staticmethod
     def checkCollide(entity, obstacle):
-        constants.logger.debug("checking collision")
         if not (isinstance(entity, Entity) and (isinstance(obstacle, Obstacle) or isinstance(obstacle, pygame.Rect))):
             constants.logger.critical(f"CollideManager take Entity and Obstacle/Rect, but {type(entity)} and {type(obstacle)} are given")
             raise TypeError("First arg must be Entity, the second one must be Obstacle (or just Rect for HUD)")
 
         if isinstance(obstacle, pygame.Rect):
             collide = entity.rect.colliderect(obstacle)
-            constants.logger.debug(f"checking collision with HUD: {collide}")
             return collide
         # if isinstance(entity, Hero): #or isinstance(entity, Enemy)
         #     return True
