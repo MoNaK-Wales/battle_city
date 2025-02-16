@@ -60,7 +60,7 @@ class Menu(SceneBase):
             if self.start_button_rect.collidepoint(mouse_x, mouse_y):
                 self.scene_manager.switch_scene("Stage 1")
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_KP_ENTER:
+            if pygame.key.get_pressed()[pygame.K_RETURN]:       #enter
                 self.scene_manager.switch_scene("Stage 1")
 
     def render(self):

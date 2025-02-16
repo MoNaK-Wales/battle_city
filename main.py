@@ -5,7 +5,7 @@ from constants import *
 
 def run_game():
     pygame.init()
-    screen = pygame.display.set_mode(sc_size)  #ВЫБРАТЬ РАЗРЕШЕНИЕ
+    screen = pygame.display.set_mode(sc_size)
     pygame.display.set_caption("Battle City")
 
     scene_manager = SceneManager(screen)
