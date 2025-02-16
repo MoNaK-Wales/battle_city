@@ -43,14 +43,11 @@ class Controll_Strategy(Move_Strategy):
         #рух гравця по клавішам 
         if keys[pygame.K_w] or keys[pygame.K_UP]:
             self.move_player("up", obstacles)
-            
-        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+        elif keys[pygame.K_s] or keys[pygame.K_DOWN]:
             self.move_player("down", obstacles)
-                        
-        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+        elif keys[pygame.K_a] or keys[pygame.K_LEFT]:
             self.move_player("left", obstacles)
-                    
-        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+        elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             self.move_player("right", obstacles)
             
             
