@@ -1,25 +1,30 @@
 import pygame 
 import pygame.math
-from constants import *
+import set_sprites
 from abc import ABC, abstractmethod
+from constants import *
 
-speed = 0.1
 
 class Move_Strategy(ABC):
     def __init__(self, entity):
+        if not isinstance(entity, set_sprites.Entity):
+            raise TypeError("Not an Entity")
+        
         self.entity = entity
-        self.speed = speed
+        self.speed = self.entity.speed
 
-        self.player_move_down = [0, self.speed]
-        self.player_move_right = [self.speed, 0]
-        self.player_move_up = [0, self.speed]
-        self.player_move_left = [self.speed, 0]
+        self.directions = {"down": (0, self.speed), "right": (self.speed, 0), "up": (0, -self.speed), "left": (-self.speed, 0)}
     
     @abstractmethod
     def move(self):
         pass
 
-class Controll_Strategy(Move_Strategy):        
+class Controll_Strategy(Move_Strategy):
+    def move_player(self, direction_name):
+        self.entity.pos += self.directions[direction_name]
+        self.entity.rotate(direction_name)
+
+
     def move(self):
         keys = pygame.key.get_pressed()
         
@@ -31,16 +36,16 @@ class Controll_Strategy(Move_Strategy):
         
         #рух гравця по клавішам 
         if keys[pygame.K_w] or keys[pygame.K_UP]:
-            self.entity.pos -= self.player_move_up
+            self.move_player("up")
             
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            self.entity.pos += self.player_move_down
+            self.move_player("down")
                         
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            self.entity.pos -= self.player_move_left
+            self.move_player("left")
                     
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            self.entity.pos += self.player_move_right
+            self.move_player("right")
             
             
         # стрільба

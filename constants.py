@@ -1,6 +1,4 @@
-
 #scenes
-
 sc_x = 256
 sc_y = 240
 
