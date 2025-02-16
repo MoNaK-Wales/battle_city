@@ -11,6 +11,7 @@ class Game_Sprite(pygame.sprite.Sprite):
         self.pos = pygame.Vector2(pos)
         self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale)
         self.rect = self.image.get_rect(center=self.pos)
+        constants.logger.debug(f"INIT sprite: image and rect of {self}: {self.image}, {self.rect}")
 
     def draw(self, screen):
         self.rect.center = self.pos
@@ -37,14 +38,17 @@ class Entity(Game_Sprite):
         self.strategy.move(obstacles)
 
     def rotate(self, angle):
+        constants.logger.info(f"Rotating {angle} {self}")
         target_angle, target_mirror = self.angle_dict[angle]
         delta_angle = target_angle - self.angle
         self.angle = target_angle
+        constants.logger.debug(f"Target angle - {target_mirror}; delta - {delta_angle}")
 
         self.image = pygame.transform.rotate(self.image, -delta_angle)
         self.rect = self.image.get_rect(center=self.rect.center)
 
         if self.is_mirrored != target_mirror:
+            constants.logger.debug("Sprite must be mirrored")
             if target_angle == 180 or target_angle == 0:
                 self.image = pygame.transform.flip(self.image, True, False)
             elif target_angle == 270 or target_angle == 90:
@@ -63,13 +67,17 @@ class Hero(Entity):
         self.active_collectables = []
         self.spawnpoint = pos
 
+        constants.logger.info("Hero created")
+
     def change_spawnpoint(self, spawnpoint):
         if isinstance(spawnpoint, pygame.Vector2):
             self.spawnpoint = spawnpoint
 
 
 class Obstacle(Game_Sprite):
-    pass
+    def __init__(self, pos, src):
+        super().__init__(pos, src)
+        constants.logger.debug(f"Created {type(self)} obstacle on {pos}")
 
 
 class Brick(Obstacle):
@@ -96,11 +104,15 @@ class Base(Obstacle):
 class CollideManager:
     @staticmethod
     def checkCollide(entity, obstacle):
+        constants.logger.debug("checking collision")
         if not (isinstance(entity, Entity) and (isinstance(obstacle, Obstacle) or isinstance(obstacle, pygame.Rect))):
+            constants.logger.critical(f"CollideManager take Entity and Obstacle/Rect, but {type(entity)} and {type(obstacle)} are given")
             raise TypeError("First arg must be Entity, the second one must be Obstacle (or just Rect for HUD)")
 
         if isinstance(obstacle, pygame.Rect):
-            return entity.rect.colliderect(obstacle)
+            collide = entity.rect.colliderect(obstacle)
+            constants.logger.debug(f"checking collision with HUD: {collide}")
+            return collide
         # if isinstance(entity, Hero): #or isinstance(entity, Enemy)
         #     return True
         # elif isinstance(entity, Bullet):
@@ -111,4 +123,5 @@ class CollideManager:
         #         return True
         #     else:
         #         return True
-        raise TypeError("Not correct Entity object")
+        constants.logger.error("Not correct Entity object was given, returning False")
+        return False

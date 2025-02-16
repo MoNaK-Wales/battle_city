@@ -15,6 +15,11 @@ def run_game():
     scene_manager.add_scene("Stage 1", stage1)
     scene_manager.switch_scene("Menu")
 
+    logger.info("Run game")
+    logger.debug(f"Screen: {screen}")
+    logger.debug(f"Scenes list: {scene_manager.scenes}")
+    logger.info("Starting loop")
+
     while True:
         scene_manager.run_current_scene()
 

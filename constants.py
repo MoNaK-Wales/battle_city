@@ -1,3 +1,16 @@
+import logging
+import sys
+
+
+#main
+logger = logging.getLogger('logger')
+logger.setLevel(logging.DEBUG)
+
+handler = logging.StreamHandler(sys.stdout)
+handler.setFormatter(logging.Formatter(fmt='[%(asctime)s %(filename)s:%(funcName)s %(levelname)s] %(message)s'))
+logger.addHandler(handler)
+
+
 #scenes
 sc_x = 256
 sc_y = 240
@@ -13,8 +26,6 @@ sc_size = sc_x_obj, sc_y_obj
 hud = 16
 hud_width = hud * sc_scale
 
-
-
 black = (0, 0, 0)
 white = (255, 255, 255)
 grey = (115, 115, 115)
@@ -23,6 +34,7 @@ NES_font = "assets/fonts/nes-font.ttf"
 
 #strategies
 Pause = False
+
 
 #sprites
 speed = 0.03
