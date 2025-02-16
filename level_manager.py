@@ -16,6 +16,7 @@ class LevelLoader:
     SYMBOLS = {
         "#": Brick,
         "@": Wall,
+        "L": Foliage
     }
 
     def __init__(self, filename):

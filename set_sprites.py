@@ -85,6 +85,9 @@ class Wall(Obstacle):
     def __init__(self, pos):
         super().__init__(pos, "assets/blocks/wall.png")
 
+class Foliage(Obstacle):
+    def __init__(self, pos):
+        super().__init__(pos, "assets/blocks/foliage.png")
 
 class Base(Obstacle):
     def __init__(self, pos):
