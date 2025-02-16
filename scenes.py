@@ -3,6 +3,7 @@ import sys
 from constants import *
 from set_sprites import *
 from abc import ABC, abstractmethod
+from level_manager import *
 
 
 class SceneBase(ABC):
@@ -117,6 +118,7 @@ class Stage(SceneBase):
         self.screen.blit(self.bottom_hud, (0, sc_y_obj - hud_width))
         self.hero.draw(self.screen)
         # self.group.draw(self.screen)
+        drTest()       
 
     def handle_event(self, event):
         pass

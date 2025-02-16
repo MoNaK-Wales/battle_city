@@ -2,12 +2,13 @@ import pygame
 from scenes import *
 from constants import *
 
+global screen
+screen = pygame.display.set_mode(sc_size)
 
 def run_game():
     pygame.init()
-    screen = pygame.display.set_mode(sc_size)
     pygame.display.set_caption("Battle City")
-
+    
     scene_manager = SceneManager(screen)
     menu = Menu(screen, scene_manager)
     stage1 = Stage(screen, scene_manager, "assets/stages/")

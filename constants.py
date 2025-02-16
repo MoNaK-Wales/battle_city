@@ -13,7 +13,7 @@ sc_size = sc_x_obj, sc_y_obj
 hud = 16
 hud_width = hud * sc_scale
 
-
+offs_obj = 20
 
 black = (0, 0, 0)
 white = (255, 255, 255)

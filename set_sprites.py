@@ -2,14 +2,14 @@ import pygame
 import strategies
 import constants
 from abc import ABC, abstractmethod
-
+from main import *
 
 class Game_Sprite(pygame.sprite.Sprite):
     def __init__(self, pos, src):
         super().__init__()
 
         self.pos = pygame.Vector2(pos)
-        self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale)
+        self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale).convert_alpha()
         self.rect = self.image.get_rect(center=self.pos)
 
     def draw(self, screen):
