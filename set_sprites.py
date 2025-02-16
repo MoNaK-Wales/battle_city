@@ -26,17 +26,27 @@ class Entity(Game_Sprite):
         self.strategy = strategy(self)
 
         self.angle = 0
-        self.angle_dict = {"up": 0, "right": 90, "down": 180, "left": 270}
+        self.angle_dict = {"up": (0, False), "right": (90, False), "down": (180, True), "left": (270, True)}
+        self.is_mirrored = False #при нижнем и правом положении спрайт отзеркален
 
     def move(self, obstacles):
         self.strategy.move(obstacles)
 
     def rotate(self, angle):
-        target_angle = self.angle_dict[angle]
+        target_angle, target_mirror = self.angle_dict[angle]
         delta_angle = target_angle - self.angle
         self.angle = target_angle
+
         self.image = pygame.transform.rotate(self.image, -delta_angle)
         self.rect = self.image.get_rect(center=self.rect.center)
+
+        if self.is_mirrored != target_mirror:
+            if target_angle == 180 or target_angle == 0:
+                self.image = pygame.transform.flip(self.image, True, False)
+            elif target_angle == 270 or target_angle == 90:
+                self.image = pygame.transform.flip(self.image, False, True)
+
+            self.is_mirrored = target_mirror
 
 class Hero(Entity):
     def __init__(self, pos, hp = 3):
