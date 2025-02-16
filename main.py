@@ -1,7 +1,7 @@
 import pygame
-import sys
 from scenes import *
 from constants import *
+
 
 def run_game():
     pygame.init()
@@ -15,10 +15,11 @@ def run_game():
     scene_manager.add_scene("Stage 1", stage1)
     scene_manager.switch_scene("Menu")
 
-    while True:        
+    while True:
         scene_manager.run_current_scene()
 
         pygame.display.flip()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     run_game()

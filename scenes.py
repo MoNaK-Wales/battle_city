@@ -5,11 +5,9 @@ from set_sprites import *
 from abc import ABC, abstractmethod
 
 
-
-
 class SceneBase(ABC):
     @abstractmethod
-    def setup(self):        #перед загрузкой сцены
+    def setup(self):  # перед загрузкой сцены
         pass
 
     @abstractmethod
@@ -17,16 +15,17 @@ class SceneBase(ABC):
         pass
 
     @abstractmethod
-    def update(self):       #обробатывает данные каждый цикл
+    def update(self):  # обробатывает данные каждый цикл
         pass
 
     @abstractmethod
-    def render(self):       #прорисовывает обновлённые данные каждый цикл
+    def render(self):  # прорисовывает обновлённые данные каждый цикл
         pass
-    
+
     @abstractmethod
-    def cleanup(self):      #перед переключением сцены на другую
+    def cleanup(self):  # перед переключением сцены на другую
         pass
+
 
 class Menu(SceneBase):
     def __init__(self, screen, scene_manager):
@@ -36,15 +35,19 @@ class Menu(SceneBase):
         self.background_color = black
 
         self.menu_font = pygame.font.Font(NES_font, font_size * sc_scale)
-        self.start_button = self.menu_font.render('START GAME', False, white, black)
+        self.start_button = self.menu_font.render("START GAME", False, white, black)
         self.start_button_rect = self.start_button.get_rect()
         self.start_button_rect.center = (sc_x_obj / 2, sc_y_obj * 0.8)
 
-        self.logo = pygame.transform.scale_by(pygame.image.load("assets/misc/logo.png").convert(), 0.35 * sc_scale)
+        self.logo = pygame.transform.scale_by(
+            pygame.image.load("assets/misc/logo.png").convert(), 0.35 * sc_scale
+        )
         self.logo_rect = self.logo.get_rect()
         self.logo_rect.center = (sc_x_obj / 2, sc_y_obj * 0.540)
-        
-        self.tank_logo = pygame.transform.scale_by(pygame.image.load("assets/misc/tank_logo.png").convert(), 0.14 * sc_scale)
+
+        self.tank_logo = pygame.transform.scale_by(
+            pygame.image.load("assets/misc/tank_logo.png").convert(), 0.14 * sc_scale
+        )
         self.tank_logo_rect = self.tank_logo.get_rect()
         self.tank_logo_rect.center = (sc_x_obj / 2, sc_y_obj * 0.2)
 
@@ -60,7 +63,7 @@ class Menu(SceneBase):
             if self.start_button_rect.collidepoint(mouse_x, mouse_y):
                 self.scene_manager.switch_scene("Stage 1")
         elif event.type == pygame.KEYDOWN:
-            if pygame.key.get_pressed()[pygame.K_RETURN]:       #enter
+            if pygame.key.get_pressed()[pygame.K_RETURN]:  # enter
                 self.scene_manager.switch_scene("Stage 1")
 
     def render(self):
@@ -71,6 +74,7 @@ class Menu(SceneBase):
 
     def cleanup(self):
         pass
+
 
 class Stage(SceneBase):
     def __init__(self, screen, scene_manager, map):
@@ -84,14 +88,17 @@ class Stage(SceneBase):
         self.top_hud.fill(grey)
         self.left_hud = pygame.Surface((hud_width, sc_y_obj))
         self.left_hud.fill(grey)
-        self.bottom_hud = pygame.Surface((sc_x_obj, hud_width ))
+        self.bottom_hud = pygame.Surface((sc_x_obj, hud_width))
         self.bottom_hud.fill(grey)
         self.right_hud = pygame.Surface((hud_width * 2, sc_y_obj))
         self.right_hud.fill(grey)
 
-        self.obstacles = [self.top_hud.get_rect(), self.left_hud.get_rect(), 
-                          self.bottom_hud.get_rect(topleft = (0, sc_y_obj - hud_width)), 
-                          self.right_hud.get_rect(topleft = (sc_x_obj - hud_width * 2, 0))]
+        self.obstacles = [
+            self.top_hud.get_rect(),
+            self.left_hud.get_rect(),
+            self.bottom_hud.get_rect(topleft=(0, sc_y_obj - hud_width)),
+            self.right_hud.get_rect(topleft=(sc_x_obj - hud_width * 2, 0)),
+        ]
 
         self.hero = Hero((sc_x_obj / 2, sc_y_obj / 2), 3)
         self.group = pygame.sprite.Group([self.hero])
@@ -114,10 +121,9 @@ class Stage(SceneBase):
     def handle_event(self, event):
         pass
 
-
     def cleanup(self):
         pass
-         
+
 
 class SceneManager:
     def __init__(self, screen):

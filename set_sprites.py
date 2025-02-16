@@ -3,8 +3,6 @@ import strategies
 import constants
 from abc import ABC, abstractmethod
 
-# tile_size = 8
-# big_tile_size = tile_size * 2
 
 class Game_Sprite(pygame.sprite.Sprite):
     def __init__(self, pos, src):
@@ -12,11 +10,12 @@ class Game_Sprite(pygame.sprite.Sprite):
 
         self.pos = pygame.Vector2(pos)
         self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale)
-        self.rect = self.image.get_rect(center = self.pos)
+        self.rect = self.image.get_rect(center=self.pos)
 
     def draw(self, screen):
         self.rect.center = self.pos
         screen.blit(self.image, self.rect)
+
 
 class Entity(Game_Sprite):
     def __init__(self, pos, src, strategy, speed):
@@ -26,8 +25,13 @@ class Entity(Game_Sprite):
         self.strategy = strategy(self)
 
         self.angle = 0
-        self.angle_dict = {"up": (0, False), "right": (90, False), "down": (180, True), "left": (270, True)}
-        self.is_mirrored = False #при нижнем и правом положении спрайт отзеркален
+        self.angle_dict = {
+            "up": (0, False),
+            "right": (90, False),
+            "down": (180, True),
+            "left": (270, True),
+        }
+        self.is_mirrored = False  # при нижнем и правом положении спрайт отзеркален
 
     def move(self, obstacles):
         self.strategy.move(obstacles)
@@ -48,9 +52,12 @@ class Entity(Game_Sprite):
 
             self.is_mirrored = target_mirror
 
+
 class Hero(Entity):
-    def __init__(self, pos, hp = 3):
-        super().__init__(pos, "assets/tanks/hero_anim1.png", strategies.Controll_Strategy, 2)
+    def __init__(self, pos, hp=3):
+        super().__init__(
+            pos, "assets/tanks/hero_anim1.png", strategies.Controll_Strategy, 2
+        )
 
         self.hp = hp
         self.active_collectables = []
@@ -59,22 +66,25 @@ class Hero(Entity):
     def change_spawnpoint(self, spawnpoint):
         if isinstance(spawnpoint, pygame.Vector2):
             self.spawnpoint = spawnpoint
-    
+
 
 class Obstacle(Game_Sprite):
     pass
 
+
 class Brick(Obstacle):
     def __init__(self, pos):
         super().__init__(pos, "assets/blocks/brick.png")
-    
+
     # ДОБАВИТЬ после пуль
     # def destroy():
     #     pass
 
+
 class Wall(Obstacle):
     def __init__(self, pos):
         super().__init__(pos, "assets/blocks/wall.png")
+
 
 class Base(Obstacle):
     def __init__(self, pos):
@@ -88,7 +98,7 @@ class CollideManager:
     def checkCollide(entity, obstacle):
         if not (isinstance(entity, Entity) and (isinstance(obstacle, Obstacle) or isinstance(obstacle, pygame.Rect))):
             raise TypeError("First arg must be Entity, the second one must be Obstacle (or just Rect for HUD)")
-        
+
         if isinstance(obstacle, pygame.Rect):
             return entity.rect.colliderect(obstacle)
         # if isinstance(entity, Hero): #or isinstance(entity, Enemy)
