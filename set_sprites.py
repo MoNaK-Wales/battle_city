@@ -12,9 +12,8 @@ class Game_Sprite(pygame.sprite.Sprite):
         self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale).convert_alpha()
         self.rect = self.image.get_rect(center=self.pos)
 
-    def draw(self, screen):
+    def update(self):
         self.rect.center = self.pos
-        screen.blit(self.image, self.rect)
 
 
 class Entity(Game_Sprite):
@@ -99,11 +98,16 @@ class Base(Obstacle):
 class CollideManager:
     @staticmethod
     def checkCollide(entity, obstacle):
-        if not (isinstance(entity, Entity) and (isinstance(obstacle, Obstacle) or isinstance(obstacle, pygame.Rect))):
+        if not (isinstance(entity, Entity) and isinstance(obstacle, (Obstacle, pygame.Rect))):
             raise TypeError("First arg must be Entity, the second one must be Obstacle (or just Rect for HUD)")
 
-        if isinstance(obstacle, pygame.Rect):
-            return entity.rect.colliderect(obstacle)
+        if isinstance(obstacle, (pygame.Rect, Wall, Brick)):
+            collide = entity.rect.colliderect(obstacle)
+            # if isinstance(entity, Bullet), isinstance(obstacle, Wall):
+            #     obstacle.destroy()
+            return collide
+        elif isinstance(obstacle, Foliage):
+            return False
         # if isinstance(entity, Hero): #or isinstance(entity, Enemy)
         #     return True
         # elif isinstance(entity, Bullet):
@@ -114,4 +118,4 @@ class CollideManager:
         #         return True
         #     else:
         #         return True
-        raise TypeError("Not correct Entity object")
+        raise TypeError("Not correct Obstacle object")

@@ -1,27 +1,27 @@
+import pygame
+from os import path
 from constants import *
 from set_sprites import *
-from pygame import *
-from main import *
-
-
-
-
-
 
 
 class LevelLoader:
-    TILE_SIZE = 8 * sc_scale  
-    OFFSET = pygame.Vector2(offs_obj * sc_scale, offs_obj * sc_scale)  
+    TILE_SIZE = 8 * sc_scale
+    OFFSET = pygame.Vector2(offs_obj * sc_scale, offs_obj * sc_scale)
 
     SYMBOLS = {
         "#": Brick,
         "@": Wall,
-        "L": Foliage
+        "L": Foliage,
+        "H": pygame.Vector2
     }
 
     def __init__(self, filename):
+        if not path.isfile(filename):
+            raise FileNotFoundError(filename)
+        
         self.filename = filename
         self.objects = []
+        self.spawnpoint = None
 
     def load(self):
         with open(self.filename, "r") as file:
@@ -33,12 +33,18 @@ class LevelLoader:
                 y = row_idx * self.TILE_SIZE + self.OFFSET.y
 
                 if cell in self.SYMBOLS:
-                    self.objects.append(self.SYMBOLS[cell]((x, y)))
+                    if cell == "H":
+                        self.spawnpoint = self.SYMBOLS[cell](x, y)
+                    else:
+                        self.objects.append(self.SYMBOLS[cell]((x, y)))
 
-        return self.objects
+        return self.objects, self.spawnpoint
 
-level1 = LevelLoader("assets/stages/stage1") 
-objects = level1.load()
-def drTest():
-    for obj in objects:
-        obj.draw(screen)
+
+# level1 = LevelLoader("assets/stages/stage1")
+# objects = level1.load()
+
+
+# def drTest():
+#     for obj in objects:
+#         obj.draw(screen)
