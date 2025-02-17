@@ -53,6 +53,8 @@ class Menu(SceneBase):
         self.tank_logo_rect.center = (sc_x_obj / 2, sc_y_obj * 0.2)
 
     def setup(self):
+        logger.info("Menu setup")
+
         self.screen.fill(self.background_color)
         self.screen.blit(self.start_button, self.start_button_rect)
         self.screen.blit(self.logo, self.logo_rect)
@@ -62,9 +64,11 @@ class Menu(SceneBase):
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = event.pos
             if self.start_button_rect.collidepoint(mouse_x, mouse_y):
+                logger.debug(f"LMB click on start button at {event.pos}")
                 self.scene_manager.switch_scene("Stage 1")
         elif event.type == pygame.KEYDOWN:
             if pygame.key.get_pressed()[pygame.K_RETURN]:  # enter
+                logger.debug(f"Starting game via enter")
                 self.scene_manager.switch_scene("Stage 1")
 
     def render(self):
@@ -74,7 +78,7 @@ class Menu(SceneBase):
         pass
 
     def cleanup(self):
-        pass
+        logger.info("Menu cleanup")
 
 
 class Stage(SceneBase):
@@ -104,13 +108,10 @@ class Stage(SceneBase):
 
     def setup(self):
         level_obstacles, spawnpoint = self.level_manager.load()
-        self.obstacles += level_obstacles
+        self.*vel_obstacles)
 
-        self.hero = set_sprites.Hero(spawnpoint, 3)
-        self.group = pygame.sprite.Group()
-        self.group.add(self.hero)
-        self.group.add(level_obstacles)
-        
+        logger.info("Stage setup")
+        logger.debug(f"Starting obstacles (HUD): {self.obstacles}")
 
     def update(self):
         self.hero.move(self.obstacles)
@@ -128,7 +129,7 @@ class Stage(SceneBase):
         pass
 
     def cleanup(self):
-        pass
+        logger.info("Stage cleanup")
 
 
 class SceneManager:
@@ -140,22 +141,28 @@ class SceneManager:
     def add_scene(self, scene_name, scene):
         if isinstance(scene, SceneBase):
             self.scenes[scene_name] = scene
+            logger.info(f"{scene_name} scene added to SceneManager")
 
     def switch_scene(self, scene_name):
+        logger.info(f"Switching from {self.current_scene} to {scene_name}")
+
         if self.current_scene is not None:
             self.current_scene.cleanup()
 
         self.current_scene = self.scenes.get(scene_name)
 
         if self.current_scene is not None:
+            logger.info(f"Successful switching")
             self.current_scene.setup()
         else:
+            logger.warning(f"Scenes dict doesn't include {scene_name} key")
             print("Name is not found")
 
     def run_current_scene(self):
         if self.current_scene is not None:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    logger.info("Quitting the game")
                     pygame.quit()
                     sys.exit()
                 self.current_scene.handle_event(event)

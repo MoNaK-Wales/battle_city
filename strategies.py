@@ -28,7 +28,7 @@ class Move_Strategy(ABC):
 class Controll_Strategy(Move_Strategy):
     def move_player(self, direction_name, obstacles):
         new_pos = self.entity.pos + self.directions[direction_name]
-
+        
         future_hero = set_sprites.Hero(new_pos)
         collides = [set_sprites.CollideManager.checkCollide(future_hero, obstacle) for obstacle in obstacles]
 
@@ -41,6 +41,7 @@ class Controll_Strategy(Move_Strategy):
 
         # добавити паузу!!!!!!!!
         if keys[pygame.K_ESCAPE] or keys[pygame.K_KP_ENTER]:
+            logger.info("Pause")
             global Pause
             Pause = True
 
