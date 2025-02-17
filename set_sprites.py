@@ -12,9 +12,8 @@ class Game_Sprite(pygame.sprite.Sprite):
         self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale).convert_alpha()
         self.rect = self.image.get_rect(center=self.pos)
 
-    def draw(self, screen):
+    def update(self):
         self.rect.center = self.pos
-        screen.blit(self.image, self.rect)
 
 
 class Entity(Game_Sprite):
