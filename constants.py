@@ -10,12 +10,14 @@ handler = logging.StreamHandler(sys.stdout)
 handler.setFormatter(logging.Formatter(fmt='[%(asctime)s %(filename)s:%(funcName)s %(levelname)s] %(message)s'))
 logger.addHandler(handler)
 
+FPS = 60
+
 
 #scenes
 sc_x = 256
 sc_y = 240
 
-sc_scale = 3
+sc_scale = 1
 sc_x_obj = sc_x * sc_scale
 sc_y_obj = sc_y * sc_scale
 
@@ -37,4 +39,4 @@ Pause = False
 
 
 #sprites
-speed = 0.03
+speed = 0.4
