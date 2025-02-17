@@ -7,6 +7,7 @@ def run_game():
     pygame.init()
     screen = pygame.display.set_mode(sc_size)
     pygame.display.set_caption("Battle City")
+    clock = pygame.time.Clock()
 
     scene_manager = SceneManager(screen)
     menu = Menu(screen, scene_manager)
@@ -21,6 +22,8 @@ def run_game():
     logger.info("Starting loop")
 
     while True:
+        clock.tick(FPS)
+        
         scene_manager.run_current_scene()
 
         pygame.display.flip()
