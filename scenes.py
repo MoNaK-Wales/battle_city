@@ -110,19 +110,26 @@ class Stage(SceneBase):
         level_obstacles, spawnpoint = self.level_manager.load()
         self.obstacles += level_obstacles
 
+
+
+        self.enemy = set_sprites.Enemy((150  * sc_scale,23 * sc_scale), 3)
+        
         self.hero = set_sprites.Hero(spawnpoint, 3)
         self.group = pygame.sprite.Group()
         self.group.add(self.hero)
         self.group.add(level_obstacles)
+        self.group.add(self.enemy)
 
 
         logger.info("Stage setup")
         logger.debug(f"Starting obstacles (HUD): {self.obstacles}")
 
     def update(self):
-        self.hero.move(self.obstacles)
+        self.hero.move(self.obstacles, None, self.enemy)
+        self.enemy.move(self.obstacles, self.hero, None)      
         self.group.update()
-
+        
+        
     def render(self):
         self.screen.fill(black)
         self.screen.blit(self.top_hud, (0, 0))

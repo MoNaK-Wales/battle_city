@@ -17,7 +17,7 @@ FPS = 60
 sc_x = 256
 sc_y = 240
 
-sc_scale = 1
+sc_scale = 3
 sc_x_obj = sc_x * sc_scale
 sc_y_obj = sc_y * sc_scale
 
