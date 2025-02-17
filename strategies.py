@@ -34,7 +34,8 @@ class Controll_Strategy(Move_Strategy):
 
         if not any(collides):
             self.entity.pos = new_pos
-        self.entity.rotate(direction_name)
+        if self.entity.angle != self.entity.angle_dict[direction_name][0]:
+            self.entity.rotate(direction_name)
 
     def move(self, obstacles):
         keys = pygame.key.get_pressed()

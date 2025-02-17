@@ -115,6 +115,7 @@ class Stage(SceneBase):
         self.group.add(self.hero)
         self.group.add(level_obstacles)
 
+
         logger.info("Stage setup")
         logger.debug(f"Starting obstacles (HUD): {self.obstacles}")
 
