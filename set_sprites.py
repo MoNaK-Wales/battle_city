@@ -2,19 +2,18 @@ import pygame
 import strategies
 import constants
 from abc import ABC, abstractmethod
-
+from main import *
 
 class Game_Sprite(pygame.sprite.Sprite):
     def __init__(self, pos, src):
         super().__init__()
 
         self.pos = pygame.Vector2(pos)
-        self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale)
+        self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale).convert_alpha()
         self.rect = self.image.get_rect(center=self.pos)
 
-    def draw(self, screen):
+    def update(self):
         self.rect.center = self.pos
-        screen.blit(self.image, self.rect)
 
 
 class Entity(Game_Sprite):
@@ -90,6 +89,9 @@ class Wall(Obstacle):
     def __init__(self, pos):
         super().__init__(pos, "assets/blocks/wall.png")
 
+class Foliage(Obstacle):
+    def __init__(self, pos):
+        super().__init__(pos, "assets/blocks/foliage.png")
 
 class Base(Obstacle):
     def __init__(self, pos):
@@ -101,13 +103,18 @@ class Base(Obstacle):
 class CollideManager:
     @staticmethod
     def checkCollide(entity, obstacle):
-        if not (isinstance(entity, Entity) and (isinstance(obstacle, Obstacle) or isinstance(obstacle, pygame.Rect))):
+        if not (isinstance(entity, Entity) and isinstance(obstacle, (Obstacle, pygame.Rect))):
             constants.logger.critical(f"CollideManager take Entity and Obstacle/Rect, but {type(entity)} and {type(obstacle)} are given")
             raise TypeError("First arg must be Entity, the second one must be Obstacle (or just Rect for HUD)")
 
-        if isinstance(obstacle, pygame.Rect):
+        if isinstance(obstacle, (pygame.Rect, Wall, Brick)):
             collide = entity.rect.colliderect(obstacle)
+            # if isinstance(entity, Bullet), isinstance(obstacle, Wall):
+            #     obstacle.destroy()
             return collide
+        elif isinstance(obstacle, Foliage):
+            return False
+
         # if isinstance(entity, Hero): #or isinstance(entity, Enemy)
         #     return True
         # elif isinstance(entity, Bullet):
@@ -118,5 +125,6 @@ class CollideManager:
         #         return True
         #     else:
         #         return True
+
         constants.logger.error("Not correct Entity object was given, returning False")
         return False
