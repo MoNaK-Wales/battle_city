@@ -2,7 +2,6 @@ import pygame
 import strategies
 import constants
 from abc import ABC, abstractmethod
-from main import *
 
 class Game_Sprite(pygame.sprite.Sprite):
     def __init__(self, pos, src):
@@ -104,7 +103,7 @@ class CollideManager:
     @staticmethod
     def checkCollide(entity, obstacle):
         if not (isinstance(entity, Entity) and isinstance(obstacle, (Obstacle, pygame.Rect))):
-            constants.logger.critical(f"CollideManager take Entity and Obstacle/Rect, but {type(entity)} and {type(obstacle)} are given")
+            constants.logger.critical(f"checkCollide takes Entity and Obstacle/Rect, but {type(entity)} and {type(obstacle)} are given")
             raise TypeError("First arg must be Entity, the second one must be Obstacle (or just Rect for HUD)")
 
         if isinstance(obstacle, (pygame.Rect, Wall, Brick)):
@@ -128,3 +127,12 @@ class CollideManager:
 
         constants.logger.error("Not correct Entity object was given, returning False")
         return False
+    
+    @staticmethod
+    def checkCollideEntities(entity1, entity2):
+        if not (isinstance(entity1, Entity) and isinstance(entity2, Entity)):
+            constants.logger.critical(f"checkCollideEntities takes 2 Entity objects, but {type(entity1)} and {type(entity2)} are given")
+            raise TypeError("Both args must be Entity")
+        
+        collide = entity1.rect.colliderect(entity2)
+        return collide

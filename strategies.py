@@ -64,3 +64,8 @@ class Controll_Strategy(Move_Strategy):
 
             # добавьте Пулю!!!
             pass
+
+
+class Enemy_Strategy(Move_Strategy):
+    def move(self, obstacles):
+        print("moving")

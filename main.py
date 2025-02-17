@@ -4,6 +4,7 @@ from constants import *
 
 
 def run_game():
+    global screen
     pygame.init()
     screen = pygame.display.set_mode(sc_size)
     pygame.display.set_caption("Battle City")
@@ -24,10 +25,19 @@ def run_game():
 
     while True:
         clock.tick(FPS)
+
         
         scene_manager.run_current_scene()
+        drawGrid()
 
         pygame.display.flip()
+
+def drawGrid():
+    blockSize = 24 #Set the size of the grid block
+    for x in range(0, sc_x_obj, blockSize):
+        for y in range(0, sc_y_obj, blockSize):
+            rect = pygame.Rect(x, y, blockSize, blockSize)
+            pygame.draw.rect(screen, (200, 200, 200), rect, 1)
 
 
 if __name__ == "__main__":
