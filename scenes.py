@@ -114,6 +114,7 @@ class Stage(SceneBase):
 
     def update(self):
         self.hero.move(self.obstacles)
+        self.group.update()
 
     def render(self):
         self.screen.fill(black)
@@ -121,7 +122,6 @@ class Stage(SceneBase):
         self.screen.blit(self.left_hud, (0, 0))
         self.screen.blit(self.right_hud, (sc_x_obj - hud_width * 2, 0))
         self.screen.blit(self.bottom_hud, (0, sc_y_obj - hud_width))
-        self.hero.draw(self.screen)
         self.group.draw(self.screen)
 
     def handle_event(self, event):
