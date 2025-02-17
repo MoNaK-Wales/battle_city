@@ -28,17 +28,13 @@ class Move_Strategy(ABC):
 class Controll_Strategy(Move_Strategy):
     def move_player(self, direction_name, obstacles):
         new_pos = self.entity.pos + self.directions[direction_name]
-
-        collides = []
-        for obstacle in obstacles:
-            collide = set_sprites.CollideManager.checkCollide(set_sprites.Hero(new_pos), obstacle)
-            collides.append(collide)
+        
+        future_hero = set_sprites.Hero(new_pos)
+        collides = [set_sprites.CollideManager.checkCollide(future_hero, obstacle) for obstacle in obstacles]
 
         if not any(collides):
             self.entity.pos = new_pos
-        
-        if self.entity.angle != self.entity.angle_dict[direction_name][0]:
-            self.entity.rotate(direction_name)
+        self.entity.rotate(direction_name)
 
     def move(self, obstacles):
         keys = pygame.key.get_pressed()
