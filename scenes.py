@@ -1,9 +1,9 @@
 import pygame
 import sys
+import set_sprites
+import level_manager
 from constants import *
-from set_sprites import *
 from abc import ABC, abstractmethod
-from level_manager import *
 
 
 class SceneBase(ABC):
@@ -82,6 +82,7 @@ class Stage(SceneBase):
         self.screen = screen
         self.scene_manager = scene_manager
         self.map = map
+        self.level_manager = level_manager.LevelLoader(map)
 
         self.background_color = black
 
@@ -101,11 +102,15 @@ class Stage(SceneBase):
             self.right_hud.get_rect(topleft=(sc_x_obj - hud_width * 2, 0)),
         ]
 
-        self.hero = Hero((sc_x_obj / 2, sc_y_obj / 2), 3)
-        self.group = pygame.sprite.Group([self.hero])
-
     def setup(self):
-        pass
+        level_obstacles, spawnpoint = self.level_manager.load()
+        self.obstacles += level_obstacles
+
+        self.hero = set_sprites.Hero(spawnpoint, 3)
+        self.group = pygame.sprite.Group()
+        self.group.add(self.hero)
+        self.group.add(level_obstacles)
+        
 
     def update(self):
         self.hero.move(self.obstacles)
@@ -117,8 +122,7 @@ class Stage(SceneBase):
         self.screen.blit(self.right_hud, (sc_x_obj - hud_width * 2, 0))
         self.screen.blit(self.bottom_hud, (0, sc_y_obj - hud_width))
         self.hero.draw(self.screen)
-        # self.group.draw(self.screen)
-        drTest()       
+        self.group.draw(self.screen)
 
     def handle_event(self, event):
         pass

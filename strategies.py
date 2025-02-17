@@ -29,9 +29,8 @@ class Controll_Strategy(Move_Strategy):
     def move_player(self, direction_name, obstacles):
         new_pos = self.entity.pos + self.directions[direction_name]
 
-        collides = []
-        for obstacle in obstacles:
-            collides.append(set_sprites.CollideManager.checkCollide(set_sprites.Hero(new_pos), obstacle))
+        future_hero = set_sprites.Hero(new_pos)
+        collides = [set_sprites.CollideManager.checkCollide(future_hero, obstacle) for obstacle in obstacles]
 
         if not any(collides):
             self.entity.pos = new_pos
