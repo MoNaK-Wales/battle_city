@@ -3,7 +3,8 @@ import pygame.math
 import set_sprites
 from abc import ABC, abstractmethod
 from constants import *
-from random import randint
+import random
+from time import *
 
 class Move_Strategy(ABC):
     def __init__(self, entity):
@@ -12,6 +13,9 @@ class Move_Strategy(ABC):
 
         self.entity = entity
         self.speed = self.entity.speed
+        self.move_timer = 0  # Счётчик кадров
+        self.move_delay = random.randint(10, 50)  # Случайная задержка в кадрах
+        self.random_direction = random.choice(["up", "down", "left", "right"])
 
         self.directions = {
             "down": (0, self.speed),
@@ -79,13 +83,30 @@ class Enemy_Strategy(Move_Strategy):
             self.entity.pos = new_pos
         self.entity.rotate(direction_name)
         
+    # def move(self, obstacles, entitys, enemy):
+    #     keys = pygame.key.get_pressed()
+        
+
+
+    # def move(self, obstacles, entitys, enemy):
+    #     directions = ["up", "down", "left", "right"]
+    #     random_direction = random.choice(directions)  # Выбираем случайное направление
+    #     self.move_enemy(random_direction, obstacles, entitys, enemy)
+
     def move(self, obstacles, entitys, enemy):
-        move_r = randint(1,4)
-        if move_r == 1:
-            self.move_enemy("up", obstacles, entitys, enemy)
-        if move_r == 2:
-            self.move_enemy("left", obstacles, entitys, enemy)
-        if move_r == 3:
-            self.move_enemy("right", obstacles, entitys, enemy)
-        if move_r == 4:
-            self.move_enemy("down", obstacles, entitys, enemy)                    
+
+        self.move_enemy(self.random_direction, obstacles, entitys, enemy)
+        if self.move_timer >= self.move_delay:  # Проверяем, прошла ли задержка
+            self.random_direction = random.choice(["up", "down", "left", "right"])  # Выбираем случайное направление
+            
+
+            # Сбрасываем таймер и задаём новую случайную задержку
+            self.move_timer = 0
+            self.move_delay = random.randint(10, 50)
+        else:
+            self.move_timer += 1
+              # Увеличиваем таймер каждую итерацию игрового цикла  
+
+
+            
+            

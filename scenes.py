@@ -113,7 +113,7 @@ class Stage(SceneBase):
 
 
         self.enemy = set_sprites.Enemy((150  * sc_scale,23 * sc_scale), 3)
-        
+        self.enemy2 = set_sprites.Enemy((100  * sc_scale,23 * sc_scale), 3)
         self.hero = set_sprites.Hero(spawnpoint, 3)
         self.group = pygame.sprite.Group()
         self.group.add(self.hero)
