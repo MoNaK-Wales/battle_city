@@ -5,15 +5,32 @@ from abc import ABC, abstractmethod
 from set_sprites import Entity
 
 
-class Enemy(Entity, ABC):
+class Tank(Entity):
     def __init__(self, pos, src, strategy, speed, bullet_speed):
         super().__init__(pos, src, strategy, speed)
+        self.image = pygame.transform.scale_by(pygame.image.load(src), constants.tank_scale * constants.sc_scale).convert_alpha()
+        self.rect = self.image.get_rect(center=self.pos)
         self.bullet_speed = bullet_speed
-        self.rect = self.image.get_rect(topleft=self.pos) #уменьшать спрайты по коэффициенту
-    
-    def update(self):
-        self.rect.topleft = self.pos
-        constants.logger.debug(f"x: {self.rect.x}, y: {self.rect.y}")
+
+
+class Hero(Tank):
+    def __init__(self, pos, hp=3):
+        super().__init__(
+            pos, "assets/tanks/hero_anim1.png", strategies.Controll_Strategy, 2, 2
+        )
+
+        self.hp = hp
+        self.active_collectables = []
+        self.spawnpoint = pos
+
+    def change_spawnpoint(self, spawnpoint):
+        if isinstance(spawnpoint, pygame.Vector2):
+            self.spawnpoint = spawnpoint
+
+
+class Enemy(Tank, ABC):
+    def __init__(self, pos, src, strategy, speed, bullet_speed):
+        super().__init__(pos, src, strategy, speed, bullet_speed)
 
     @abstractmethod
     def shoot(self):

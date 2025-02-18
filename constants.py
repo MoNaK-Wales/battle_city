@@ -42,3 +42,4 @@ Pause = False
 
 # sprites
 speed = 0.4
+tank_scale = 0.8125

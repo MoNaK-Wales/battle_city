@@ -36,9 +36,9 @@ class LevelLoader:
 
                 if cell in self.SYMBOLS:
                     if cell == "H":
-                        self.spawnpoint = self.SYMBOLS[cell](x, y) 
+                        self.spawnpoint = self.SYMBOLS[cell](x, y) + pygame.Vector2(4*sc_scale, 4*sc_scale)
                     elif cell == "E":
-                        self.enemy_spawns.append(self.SYMBOLS[cell](x, y) - pygame.Vector2(4*sc_scale, 4*sc_scale))
+                        self.enemy_spawns.append(self.SYMBOLS[cell](x, y) + pygame.Vector2(4*sc_scale, 4*sc_scale))
                     else:
                         self.objects.append(self.SYMBOLS[cell]((x, y)))
 

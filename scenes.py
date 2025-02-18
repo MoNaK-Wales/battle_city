@@ -1,8 +1,7 @@
 import pygame
 import sys
-import set_sprites
 import level_manager
-import enemies
+import tanks
 import time
 from constants import *
 from abc import ABC, abstractmethod
@@ -117,7 +116,7 @@ class Stage(SceneBase):
         level_obstacles, spawnpoint, enemy_spawns = self.level_manager.load()
         self.obstacles += level_obstacles
 
-        self.hero = set_sprites.Hero(spawnpoint, 3)
+        self.hero = tanks.Hero(spawnpoint, 3)
         self.group = pygame.sprite.Group()
         self.group.add(self.hero)
         self.group.add(level_obstacles)
@@ -130,9 +129,9 @@ class Stage(SceneBase):
             [0, 0, 0, 1, 0, 0, 0]
         ]
         enemy_factories = [
-            enemies.EnemyFactory(enemy_spawns[1], enemy_types[1]),
-            enemies.EnemyFactory(enemy_spawns[2], enemy_types[2]),
-            enemies.EnemyFactory(enemy_spawns[0], enemy_types[0]),
+            tanks.EnemyFactory(enemy_spawns[1], enemy_types[1]),
+            tanks.EnemyFactory(enemy_spawns[2], enemy_types[2]),
+            tanks.EnemyFactory(enemy_spawns[0], enemy_types[0]),
         ]
         self.factories_iter = cycle(enemy_factories)
         self.enemy_count = 0

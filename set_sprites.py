@@ -1,5 +1,4 @@
 import pygame
-import strategies
 import constants
 from abc import ABC, abstractmethod
 
@@ -18,6 +17,9 @@ class Game_Sprite(pygame.sprite.Sprite):
 class Entity(Game_Sprite):
     def __init__(self, pos, src, strategy, speed):
         super().__init__(pos, src)
+
+        self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale).convert_alpha()
+        self.rect = self.image.get_rect(center=self.pos)
 
         self.speed = constants.speed * speed * constants.sc_scale
         self.strategy = strategy(self)
@@ -52,21 +54,6 @@ class Entity(Game_Sprite):
                 self.image = pygame.transform.flip(self.image, False, True)
 
             self.is_mirrored = target_mirror
-
-
-class Hero(Entity):
-    def __init__(self, pos, hp=3):
-        super().__init__(
-            pos, "assets/tanks/hero_anim1.png", strategies.Controll_Strategy, 2
-        )
-
-        self.hp = hp
-        self.active_collectables = []
-        self.spawnpoint = pos
-
-    def change_spawnpoint(self, spawnpoint):
-        if isinstance(spawnpoint, pygame.Vector2):
-            self.spawnpoint = spawnpoint
 
 
 class Obstacle(Game_Sprite):
