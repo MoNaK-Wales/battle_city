@@ -114,6 +114,7 @@ class Stage(SceneBase):
         self.group = pygame.sprite.Group()
         self.group.add(self.hero)
         self.group.add(level_obstacles)
+        self.bullets = pygame.sprite.Group()
 
 
         logger.info("Stage setup")
@@ -130,9 +131,13 @@ class Stage(SceneBase):
         self.screen.blit(self.right_hud, (sc_x_obj - hud_width * 2, 0))
         self.screen.blit(self.bottom_hud, (0, sc_y_obj - hud_width))
         self.group.draw(self.screen)
+        self.bullets.draw(self.screen)
 
     def handle_event(self, event):
-        pass
+        if event.type == pygame.KEYDOWN:
+            if pygame.key.get_pressed()[pygame.K_x]:
+                bullet = set_sprites.Bullet(self.hero.rect.center, self.hero.angle)
+                self.bullets.add(bullet)
 
     def cleanup(self):
         logger.info("Stage cleanup")

@@ -57,11 +57,11 @@ class Controll_Strategy(Move_Strategy):
             self.move_player("right", obstacles)
 
         # стрільба
-        if keys[pygame.MOUSEBUTTONDOWN] or keys[pygame.K_x]:
-            bullet = set_sprites.Bullet(self.entity.rect.center, self.entity.angle)
-            bullet.add(bullet)
+        # if keys[pygame.MOUSEBUTTONDOWN] or keys[pygame.K_x]:
+        #     bullet = set_sprites.Bullet(self.entity.rect.center, self.entity.angle)
+        #     bullet.add(bullet)
 
-            # ДОБАВТЕ ПУЛИ!!!
+        #     # ДОБАВТЕ ПУЛИ!!!
 
-            # добавьте Пулю!!!
-            pass
+        #     # добавьте Пулю!!!
+        #     pass
