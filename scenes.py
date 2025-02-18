@@ -127,8 +127,9 @@ class Stage(SceneBase):
 
     def update(self):
         self.hero.move(self.obstacles, None, self.enemy)
-        self.enemy.move(self.obstacles, self.hero, None)      
+        self.enemy.move(self.obstacles, self.hero, None)
         self.group.update()
+        self.bullets.update(obstacles=self.obstacles, entitys=self.hero, enemy=self.enemy)
         
         
     def render(self):
@@ -137,13 +138,13 @@ class Stage(SceneBase):
         self.screen.blit(self.left_hud, (0, 0))
         self.screen.blit(self.right_hud, (sc_x_obj - hud_width * 2, 0))
         self.screen.blit(self.bottom_hud, (0, sc_y_obj - hud_width))
-        self.group.draw(self.screen)
         self.bullets.draw(self.screen)
+        self.group.draw(self.screen)
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
             if pygame.key.get_pressed()[pygame.K_x]:
-                bullet = set_sprites.Bullet(self.hero.rect.center, self.hero.angle)
+                bullet = set_sprites.Bullet(self.hero.rect.center, self.hero.angle, 2)
                 self.bullets.add(bullet)
 
     def cleanup(self):

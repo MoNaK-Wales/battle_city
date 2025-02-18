@@ -42,3 +42,4 @@ Pause = False
 
 #sprites
 speed = 0.4
+speed_bullet = 0.8

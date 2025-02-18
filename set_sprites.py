@@ -29,6 +29,10 @@ class Entity(Game_Sprite):
             "right": (90, False),
             "down": (180, True),
             "left": (270, True),
+            0: (0, False),
+            90: (90, False),
+            180: (180, True),
+            270: (270, True),
         }
         self.is_mirrored = False  # при нижнем и правом положении спрайт отзеркален
 
@@ -83,17 +87,20 @@ class Enemy(Entity):
         if isinstance(spawnpoint, pygame.Vector2):
             self.spawnpoint = spawnpoint
 
-class Bullet(Entity):  # Припускаємо, що Entity визначено
-    def __init__(self, pos, direction):
-        super().__init__( pos, "assets/sprites/bullet.png", strategies.Controll_Strategy, 10) # Якщо Entity.__init__ потребує аргументів, надайте їх.
-        self.direction = direction  # Вектор напрямку (tuple)
+class Bullet(Entity):
+    def __init__(self, pos, direction, speed = 2):
+        speed *= constants.speed_bullet * constants.sc_scale
+        super().__init__( pos, "assets/sprites/bullet.png", strategies.Bullet_strategy, speed)
+        self.direction = direction
         
-        
-    def update(self):
-        self.rect.x += self.speed * self.direction[0]
-        self.rect.y += self.speed * self.direction[1]
-        if self.rect.x < 0 or self.rect.x > 800 or self.rect.y < 0 or self.rect.y > 600:
-            self.kill() # Або self.remove(), якщо використовуєте спрайт групу
+
+    def update(self, obstacles, entitys, enemy):
+        self.rect.center = self.pos
+        self.move(obstacles, entitys, enemy)
+    
+    def kill(self):
+        # anim.play
+        super().kill()
 
 
 class Obstacle(Game_Sprite):

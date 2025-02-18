@@ -71,7 +71,7 @@ class Controll_Strategy(Move_Strategy):
         #     # добавьте Пулю!!!
         #     pass
 
-        
+
 class Enemy_Strategy(Move_Strategy):
     def move_enemy(self, direction_name, obstacles, entitys, enemy):
         new_pos = self.entity.pos + self.directions[direction_name]
@@ -82,7 +82,8 @@ class Enemy_Strategy(Move_Strategy):
         
         if not any(collides):
             self.entity.pos = new_pos
-        self.entity.rotate(direction_name)
+        if self.entity.angle != self.entity.angle_dict[direction_name][0]:
+            self.entity.rotate(direction_name)
         
     # def move(self, obstacles, entitys, enemy):
     #     keys = pygame.key.get_pressed()
@@ -109,25 +110,30 @@ class Enemy_Strategy(Move_Strategy):
               # Увеличиваем таймер каждую итерацию игрового цикла  
 
 
-            
 class Bullet_strategy(Move_Strategy):
     def move_bullet(self, direction_name, obstacles, entitys, enemy):
         new_pos = self.entity.pos + self.directions[direction_name]
 
-        future_bullet = set_sprites.Entity(new_pos)
+        future_bullet = set_sprites.Bullet(
+            new_pos, entitys.angle_dict[direction_name][0]
+        )
         collides = [set_sprites.CollideManager.checkCollide(future_bullet, obstacle) for obstacle in obstacles]
-        collides.append(set_sprites.CollideManager.checkCollideEntities(future_bullet, entitys))
-        
+        # collides.append(set_sprites.CollideManager.checkCollideEntities(future_bullet, entitys))
+
         if not any(collides):
             self.entity.pos = new_pos
-        self.entity.rotate(direction_name)
-        
+        else:
+            self.entity.kill()
+
+        if self.entity.angle != self.entity.direction:
+            self.entity.rotate(direction_name)
+
     def move(self, obstacles, entitys, enemy):
-        if self.entity.angle == self.entity.angle_dict["up"][0]:
+        if self.entity.direction == 0:
             self.move_bullet("up", obstacles, entitys, enemy)
-        if self.entity.angle == self.entity.angle_dict["left"][0]:
-            self.move_bullet("left", obstacles, entitys, enemy)        
-        if self.entity.angle == self.entity.angle_dict["right"][0]:
-            self.move_bullet("right", obstacles, entitys, enemy)
-        if self.entity.angle == self.entity.angle_dict["right"][0]:
-            self.move_bullet("right", obstacles, entitys, enemy)
+        if self.entity.direction == 90:
+            self.move_bullet("right", obstacles, entitys, enemy)        
+        if self.entity.direction == 180:
+            self.move_bullet("down", obstacles, entitys, enemy)
+        if self.entity.direction == 270:
+            self.move_bullet("left", obstacles, entitys, enemy)
