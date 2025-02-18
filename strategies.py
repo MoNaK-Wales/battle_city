@@ -109,4 +109,24 @@ class Enemy_Strategy(Move_Strategy):
 
 
             
-            
+class Bullet_strategy(Move_Strategy):
+    def move_bullet(self, direction_name, obstacles, entitys, enemy):
+        new_pos = self.entity.pos + self.directions[direction_name]
+
+        future_bullet = set_sprites.Entity(new_pos)
+        collides = [set_sprites.CollideManager.checkCollide(future_bullet, obstacle) for obstacle in obstacles]
+        collides.append(set_sprites.CollideManager.checkCollideEntities(future_bullet, entitys))
+        
+        if not any(collides):
+            self.entity.pos = new_pos
+        self.entity.rotate(direction_name)
+        
+    def move(self, obstacles, entitys, enemy):
+        if self.entity.angle == self.entity.angle_dict["up"][0]:
+            self.move_bullet("up", obstacles, entitys, enemy)
+        if self.entity.angle == self.entity.angle_dict["left"][0]:
+            self.move_bullet("left", obstacles, entitys, enemy)        
+        if self.entity.angle == self.entity.angle_dict["right"][0]:
+            self.move_bullet("right", obstacles, entitys, enemy)
+        if self.entity.angle == self.entity.angle_dict["right"][0]:
+            self.move_bullet("right", obstacles, entitys, enemy)
