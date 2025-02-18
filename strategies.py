@@ -58,7 +58,8 @@ class Controll_Strategy(Move_Strategy):
 
         # стрільба
         if keys[pygame.MOUSEBUTTONDOWN] or keys[pygame.K_x]:
-            # Summon_Bullet(pos ...)
+            bullet = set_sprites.Bullet(self.entity.rect.center, self.entity.angle)
+            bullet.add(bullet)
 
             # ДОБАВТЕ ПУЛИ!!!
 
