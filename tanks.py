@@ -26,7 +26,7 @@ class Hero(Tank):
     def change_spawnpoint(self, spawnpoint):
         if isinstance(spawnpoint, pygame.Vector2):
             self.spawnpoint = spawnpoint
-
+    
 
 class Enemy(Tank, ABC):
     def __init__(self, pos, src, strategy, speed, bullet_speed):
