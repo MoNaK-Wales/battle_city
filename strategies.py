@@ -62,15 +62,16 @@ class Controll_Strategy(Move_Strategy):
             self.move_player("right", obstacles, enemy)
 
         # стрільба
-        if keys[pygame.MOUSEBUTTONDOWN] or keys[pygame.K_x]:
-            # Summon_Bullet(pos ...)
+        # if keys[pygame.MOUSEBUTTONDOWN] or keys[pygame.K_x]:
+        #     bullet = set_sprites.Bullet(self.entity.rect.center, self.entity.angle)
+        #     bullet.add(bullet)
 
-            # ДОБАВТЕ ПУЛИ!!!
+        #     # ДОБАВТЕ ПУЛИ!!!
 
-            # добавьте Пулю!!!
-            pass
+        #     # добавьте Пулю!!!
+        #     pass
 
-
+        
 class Enemy_Strategy(Move_Strategy):
     def move_enemy(self, direction_name, obstacles, entitys, enemy):
         new_pos = self.entity.pos + self.directions[direction_name]

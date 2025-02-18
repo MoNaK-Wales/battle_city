@@ -83,6 +83,19 @@ class Enemy(Entity):
         if isinstance(spawnpoint, pygame.Vector2):
             self.spawnpoint = spawnpoint
 
+class Bullet(Entity):  # Припускаємо, що Entity визначено
+    def __init__(self, pos, direction):
+        super().__init__( pos, "assets/sprites/bullet.png", strategies.Controll_Strategy, 10) # Якщо Entity.__init__ потребує аргументів, надайте їх.
+        self.direction = direction  # Вектор напрямку (tuple)
+        
+        
+    def update(self):
+        self.rect.x += self.speed * self.direction[0]
+        self.rect.y += self.speed * self.direction[1]
+        if self.rect.x < 0 or self.rect.x > 800 or self.rect.y < 0 or self.rect.y > 600:
+            self.kill() # Або self.remove(), якщо використовуєте спрайт групу
+
+
 class Obstacle(Game_Sprite):
     def __init__(self, pos, src):
         super().__init__(pos, src)
