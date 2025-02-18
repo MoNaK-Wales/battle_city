@@ -2,7 +2,7 @@ import logging
 import sys
 
 
-#main
+# main
 logger = logging.getLogger('logger')
 logger.setLevel(logging.DEBUG)
 
@@ -13,7 +13,7 @@ logger.addHandler(handler)
 FPS = 60
 
 
-#scenes
+# scenes
 sc_x = 256
 sc_y = 240
 
@@ -36,10 +36,11 @@ grey = (115, 115, 115)
 NES_font = "assets/fonts/nes-font.ttf"
 
 
-#strategies
+# strategies
 Pause = False
 
 
 #sprites
 speed = 0.4
 speed_bullet = 1.4
+tank_scale = 0.8125

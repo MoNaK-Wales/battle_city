@@ -1,9 +1,11 @@
 import pygame
 import sys
-import set_sprites
 import level_manager
+import tanks
+import time
 from constants import *
 from abc import ABC, abstractmethod
+from itertools import cycle
 
 
 class SceneBase(ABC):
@@ -106,31 +108,45 @@ class Stage(SceneBase):
             self.right_hud.get_rect(topleft=(sc_x_obj - hud_width * 2, 0)),
         ]
 
+        self.lastspawn = 0
+
     def setup(self):
-        level_obstacles, spawnpoint = self.level_manager.load()
+        logger.info("Stage setup")
+        
+        level_obstacles, spawnpoint, enemy_spawns = self.level_manager.load()
         self.obstacles += level_obstacles
 
 
-
-        self.enemy = set_sprites.Enemy((150  * sc_scale,23 * sc_scale), 3)
-        self.enemy2 = set_sprites.Enemy((100  * sc_scale,23 * sc_scale), 3)
-        self.hero = set_sprites.Hero(spawnpoint, 3)
+        self.hero = tanks.Hero(spawnpoint, 3)
         self.group = pygame.sprite.Group()
         self.group.add(self.hero)
         self.group.add(level_obstacles)
         self.group.add(self.enemy)
         self.bullets = pygame.sprite.Group()
 
+        self.enemies_group = pygame.sprite.Group()
 
-        logger.info("Stage setup")
+        enemy_types = [
+            [0, 0, 0, 0, 0, 0],                     #временно для проверки
+            [0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0]
+        ]
+        enemy_factories = [
+            tanks.EnemyFactory(enemy_spawns[1], enemy_types[1]),
+            tanks.EnemyFactory(enemy_spawns[2], enemy_types[2]),
+            tanks.EnemyFactory(enemy_spawns[0], enemy_types[0]),
+        ]
+        self.factories_iter = cycle(enemy_factories)
+        self.enemy_count = 0
+
         logger.debug(f"Starting obstacles (HUD): {self.obstacles}")
 
     def update(self):
         self.hero.move(self.obstacles, None, self.enemy, self.bullets)
-        self.enemy.move(self.obstacles, self.hero, None)
+        self.spawn_enemy()
         self.group.update()
+        self.enemies_group.update()
         self.bullets.update(obstacles=self.obstacles, entitys=self.hero, enemy=self.enemy)
-        
         
     def render(self):
         self.screen.fill(black)
@@ -140,12 +156,21 @@ class Stage(SceneBase):
         self.screen.blit(self.bottom_hud, (0, sc_y_obj - hud_width))
         self.bullets.draw(self.screen)
         self.group.draw(self.screen)
+        self.enemies_group.draw(self.screen)
 
     def handle_event(self, event):
         pass
 
     def cleanup(self):
         logger.info("Stage cleanup")
+
+    def spawn_enemy(self):
+        timenow = time.time() - self.lastspawn
+        if len(self.enemies_group) < 4 and timenow > 5:
+            factory = next(self.factories_iter)
+            new_enemy = factory.spawn()
+            self.enemies_group.add(new_enemy)
+            self.lastspawn = time.time()
 
 
 class SceneManager:

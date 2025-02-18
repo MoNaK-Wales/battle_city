@@ -1,8 +1,6 @@
 import pygame
-import strategies
 import constants
 from abc import ABC, abstractmethod
-from main import *
 
 class Game_Sprite(pygame.sprite.Sprite):
     def __init__(self, pos, src):
@@ -19,6 +17,9 @@ class Game_Sprite(pygame.sprite.Sprite):
 class Entity(Game_Sprite):
     def __init__(self, pos, src, strategy, speed):
         super().__init__(pos, src)
+
+        self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale).convert_alpha()
+        self.rect = self.image.get_rect(center=self.pos)
 
         self.speed = constants.speed * speed * constants.sc_scale
         self.strategy = strategy(self)
@@ -59,37 +60,6 @@ class Entity(Game_Sprite):
             self.is_mirrored = target_mirror
 
 
-class Hero(Entity):
-    def __init__(self, pos, hp=3):
-        super().__init__(
-            pos, "assets/tanks/hero_anim1.png", strategies.Controll_Strategy, 2
-        )
-
-        self.hp = hp
-        self.active_collectables = []
-        self.spawnpoint = pos
-
-    def move(self, obstacles, entitys, enemy, bullet_group):
-        self.strategy.move(obstacles, entitys, enemy, bullet_group)
-
-    def change_spawnpoint(self, spawnpoint):
-        if isinstance(spawnpoint, pygame.Vector2):
-            self.spawnpoint = spawnpoint
-
-class Enemy(Entity):
-    def __init__(self, pos, hp=3):
-        super().__init__(
-            pos, "assets/tanks/hero_anim1.png", strategies.Enemy_Strategy, 2
-        )
-
-        self.hp = hp
-        self.active_collectables = []
-        self.spawnpoint = pos
-
-    def change_spawnpoint(self, spawnpoint):
-        if isinstance(spawnpoint, pygame.Vector2):
-            self.spawnpoint = spawnpoint
-
 class Bullet(Entity):
     def __init__(self, pos, direction, speed = 2):
         speed *= constants.speed_bullet * constants.sc_scale
@@ -104,8 +74,8 @@ class Bullet(Entity):
     def kill(self):
         # anim.play
         super().kill()
-
-
+        
+        
 class Obstacle(Game_Sprite):
     def __init__(self, pos, src):
         super().__init__(pos, src)
@@ -140,7 +110,7 @@ class CollideManager:
     @staticmethod
     def checkCollide(entity, obstacle):
         if not (isinstance(entity, Entity) and isinstance(obstacle, (Obstacle, pygame.Rect))):
-            constants.logger.critical(f"CollideManager take Entity and Obstacle/Rect, but {type(entity)} and {type(obstacle)} are given")
+            constants.logger.critical(f"checkCollide takes Entity and Obstacle/Rect, but {type(entity)} and {type(obstacle)} are given")
             raise TypeError("First arg must be Entity, the second one must be Obstacle (or just Rect for HUD)")
 
         if isinstance(obstacle, (pygame.Rect, Wall, Brick)):
@@ -164,11 +134,12 @@ class CollideManager:
 
         constants.logger.error("Not correct Entity object was given, returning False")
         return False
+    
     @staticmethod
     def checkCollideEntities(entity1, entity2):
         if not (isinstance(entity1, Entity) and isinstance(entity2, Entity)):
             constants.logger.critical(f"checkCollideEntities takes 2 Entity objects, but {type(entity1)} and {type(entity2)} are given")
             raise TypeError("Both args must be Entity")
-
+            
         collide = entity1.rect.colliderect(entity2)
         return collide

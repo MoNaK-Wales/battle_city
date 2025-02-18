@@ -1,6 +1,7 @@
 import pygame
 import pygame.math
 import set_sprites
+import tanks
 from abc import ABC, abstractmethod
 from constants import *
 import random
@@ -37,8 +38,8 @@ class Controll_Strategy(Move_Strategy):
 
     def move_player(self, direction_name, obstacles, entitys):
         new_pos = self.entity.pos + self.directions[direction_name]
-
-        future_hero = set_sprites.Hero(new_pos)
+        
+        future_hero = tanks.Hero(new_pos)
         collides = [set_sprites.CollideManager.checkCollide(future_hero, obstacle) for obstacle in obstacles]
         collides.append(set_sprites.CollideManager.checkCollideEntities(future_hero, entitys))
 
