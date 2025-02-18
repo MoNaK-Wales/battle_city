@@ -40,6 +40,7 @@ NES_font = "assets/fonts/nes-font.ttf"
 Pause = False
 
 
-# sprites
+#sprites
 speed = 0.4
+speed_bullet = 1.4
 tank_scale = 0.8125

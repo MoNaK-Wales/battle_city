@@ -30,11 +30,15 @@ class Entity(Game_Sprite):
             "right": (90, False),
             "down": (180, True),
             "left": (270, True),
+            0: (0, False),
+            90: (90, False),
+            180: (180, True),
+            270: (270, True),
         }
         self.is_mirrored = False  # при нижнем и правом положении спрайт отзеркален
 
-    def move(self, obstacles):
-        self.strategy.move(obstacles)
+    def move(self, obstacles, entitys, enemy):
+        self.strategy.move(obstacles, entitys, enemy)
 
     def rotate(self, angle):
         constants.logger.info(f"Rotating {angle} {self}")
@@ -56,6 +60,22 @@ class Entity(Game_Sprite):
             self.is_mirrored = target_mirror
 
 
+class Bullet(Entity):
+    def __init__(self, pos, direction, speed = 2):
+        speed *= constants.speed_bullet * constants.sc_scale
+        super().__init__( pos, "assets/sprites/bullet.png", strategies.Bullet_strategy, speed)
+        self.direction = direction
+        
+
+    def update(self, obstacles, entitys, enemy):
+        self.rect.center = self.pos
+        self.move(obstacles, entitys, enemy)
+    
+    def kill(self):
+        # anim.play
+        super().kill()
+        
+        
 class Obstacle(Game_Sprite):
     def __init__(self, pos, src):
         super().__init__(pos, src)
@@ -120,6 +140,6 @@ class CollideManager:
         if not (isinstance(entity1, Entity) and isinstance(entity2, Entity)):
             constants.logger.critical(f"checkCollideEntities takes 2 Entity objects, but {type(entity1)} and {type(entity2)} are given")
             raise TypeError("Both args must be Entity")
-        
+            
         collide = entity1.rect.colliderect(entity2)
         return collide

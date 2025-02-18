@@ -116,10 +116,13 @@ class Stage(SceneBase):
         level_obstacles, spawnpoint, enemy_spawns = self.level_manager.load()
         self.obstacles += level_obstacles
 
+
         self.hero = tanks.Hero(spawnpoint, 3)
         self.group = pygame.sprite.Group()
         self.group.add(self.hero)
         self.group.add(level_obstacles)
+        self.group.add(self.enemy)
+        self.bullets = pygame.sprite.Group()
 
         self.enemies_group = pygame.sprite.Group()
 
@@ -139,17 +142,19 @@ class Stage(SceneBase):
         logger.debug(f"Starting obstacles (HUD): {self.obstacles}")
 
     def update(self):
-        self.hero.move(self.obstacles)
+        self.hero.move(self.obstacles, None, self.enemy, self.bullets)
         self.spawn_enemy()
         self.group.update()
         self.enemies_group.update()
-
+        self.bullets.update(obstacles=self.obstacles, entitys=self.hero, enemy=self.enemy)
+        
     def render(self):
         self.screen.fill(black)
         self.screen.blit(self.top_hud, (0, 0))
         self.screen.blit(self.left_hud, (0, 0))
         self.screen.blit(self.right_hud, (sc_x_obj - hud_width * 2, 0))
         self.screen.blit(self.bottom_hud, (0, sc_y_obj - hud_width))
+        self.bullets.draw(self.screen)
         self.group.draw(self.screen)
         self.enemies_group.draw(self.screen)
 
