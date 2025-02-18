@@ -126,7 +126,7 @@ class Stage(SceneBase):
         logger.debug(f"Starting obstacles (HUD): {self.obstacles}")
 
     def update(self):
-        self.hero.move(self.obstacles, None, self.enemy)
+        self.hero.move(self.obstacles, None, self.enemy, self.bullets)
         self.enemy.move(self.obstacles, self.hero, None)
         self.group.update()
         self.bullets.update(obstacles=self.obstacles, entitys=self.hero, enemy=self.enemy)
@@ -142,10 +142,7 @@ class Stage(SceneBase):
         self.group.draw(self.screen)
 
     def handle_event(self, event):
-        if event.type == pygame.KEYDOWN:
-            if pygame.key.get_pressed()[pygame.K_x]:
-                bullet = set_sprites.Bullet(self.hero.rect.center, self.hero.angle, 2)
-                self.bullets.add(bullet)
+        pass
 
     def cleanup(self):
         logger.info("Stage cleanup")

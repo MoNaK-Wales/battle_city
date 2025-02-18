@@ -30,9 +30,14 @@ class Move_Strategy(ABC):
 
 
 class Controll_Strategy(Move_Strategy):
+
+    def __init__(self, entity):
+        super().__init__(entity)
+        self.last_shot = 0
+
     def move_player(self, direction_name, obstacles, entitys):
         new_pos = self.entity.pos + self.directions[direction_name]
-        
+
         future_hero = set_sprites.Hero(new_pos)
         collides = [set_sprites.CollideManager.checkCollide(future_hero, obstacle) for obstacle in obstacles]
         collides.append(set_sprites.CollideManager.checkCollideEntities(future_hero, entitys))
@@ -42,7 +47,7 @@ class Controll_Strategy(Move_Strategy):
         if self.entity.angle != self.entity.angle_dict[direction_name][0]:
             self.entity.rotate(direction_name)
 
-    def move(self, obstacles, entitys, enemy):
+    def move(self, obstacles, entitys, enemy, bullet_group):
         keys = pygame.key.get_pressed()
 
         # добавити паузу!!!!!!!!
@@ -62,14 +67,10 @@ class Controll_Strategy(Move_Strategy):
             self.move_player("right", obstacles, enemy)
 
         # стрільба
-        # if keys[pygame.MOUSEBUTTONDOWN] or keys[pygame.K_x]:
-        #     bullet = set_sprites.Bullet(self.entity.rect.center, self.entity.angle)
-        #     bullet.add(bullet)
-
-        #     # ДОБАВТЕ ПУЛИ!!!
-
-        #     # добавьте Пулю!!!
-        #     pass
+        if (keys[pygame.MOUSEBUTTONDOWN] or keys[pygame.K_x]) and time() - self.last_shot > 0.85:
+            bullet = set_sprites.Bullet(self.entity.rect.center, self.entity.angle, 2)
+            bullet_group.add(bullet)
+            self.last_shot = time()
 
 
 class Enemy_Strategy(Move_Strategy):
