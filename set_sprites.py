@@ -32,8 +32,8 @@ class Entity(Game_Sprite):
         }
         self.is_mirrored = False  # при нижнем и правом положении спрайт отзеркален
 
-    def move(self, obstacles):
-        self.strategy.move(obstacles)
+    def move(self, obstacles, entitys, enemy):
+        self.strategy.move(obstacles, entitys, enemy)
 
     def rotate(self, angle):
         constants.logger.info(f"Rotating {angle} {self}")
@@ -69,6 +69,19 @@ class Hero(Entity):
         if isinstance(spawnpoint, pygame.Vector2):
             self.spawnpoint = spawnpoint
 
+class Enemy(Entity):
+    def __init__(self, pos, hp=3):
+        super().__init__(
+            pos, "assets/tanks/hero_anim1.png", strategies.Enemy_Strategy, 2
+        )
+
+        self.hp = hp
+        self.active_collectables = []
+        self.spawnpoint = pos
+
+    def change_spawnpoint(self, spawnpoint):
+        if isinstance(spawnpoint, pygame.Vector2):
+            self.spawnpoint = spawnpoint
 
 class Bullet(Entity):  # Припускаємо, що Entity визначено
     def __init__(self, pos, direction):
@@ -141,3 +154,11 @@ class CollideManager:
 
         constants.logger.error("Not correct Entity object was given, returning False")
         return False
+    @staticmethod
+    def checkCollideEntities(entity1, entity2):
+        if not (isinstance(entity1, Entity) and isinstance(entity2, Entity)):
+            constants.logger.critical(f"checkCollideEntities takes 2 Entity objects, but {type(entity1)} and {type(entity2)} are given")
+            raise TypeError("Both args must be Entity")
+
+        collide = entity1.rect.colliderect(entity2)
+        return collide
