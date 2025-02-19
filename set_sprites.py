@@ -18,9 +18,6 @@ class Entity(Game_Sprite):
     def __init__(self, pos, src, strategy, speed):
         super().__init__(pos, src)
 
-        self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale).convert_alpha()
-        self.rect = self.image.get_rect(center=self.pos)
-
         self.speed = constants.speed * speed * constants.sc_scale
         self.strategy = strategy(self)
 
@@ -58,22 +55,6 @@ class Entity(Game_Sprite):
                 self.image = pygame.transform.flip(self.image, False, True)
 
             self.is_mirrored = target_mirror
-
-
-class Bullet(Entity):
-    def __init__(self, pos, direction, speed = 2):
-        speed *= constants.speed_bullet * constants.sc_scale
-        super().__init__( pos, "assets/sprites/bullet.png", strategies.Bullet_strategy, speed)
-        self.direction = direction
-        
-
-    def update(self, obstacles, entitys, enemy):
-        self.rect.center = self.pos
-        self.move(obstacles, entitys, enemy)
-    
-    def kill(self):
-        # anim.play
-        super().kill()
         
         
 class Obstacle(Game_Sprite):

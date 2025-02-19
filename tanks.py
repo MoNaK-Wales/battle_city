@@ -16,7 +16,7 @@ class Tank(Entity):
 class Hero(Tank):
     def __init__(self, pos, hp=3):
         super().__init__(
-            pos, "assets/tanks/hero_anim1.png", strategies.Controll_Strategy, 2, 2
+            pos, "assets/sprites/tanks/hero_anim1.png", strategies.Controll_Strategy, 2, 2
         )
 
         self.hp = hp
@@ -44,14 +44,14 @@ class Enemy(Tank, ABC):
 
 class SimpleEnemy(Enemy):
     def __init__(self, pos):
-        super().__init__(pos, "assets/tanks/enemy1_anim1.png", strategies.Enemy_Strategy, 1, 1)
+        super().__init__(pos, "assets/sprites/tanks/enemy1_anim1.png", strategies.Enemy_Strategy, 1, 1)
 
     def shoot(self):
         pass
 
 class FastEnemy(Enemy):
     def __init__(self, pos):
-        super().__init__(pos, "assets/tanks/enemy2_anim1.png", strategies.Enemy_Strategy, 3, 2)
+        super().__init__(pos, "assets/sprites/tanks/enemy2_anim1.png", strategies.Enemy_Strategy, 3, 2)
 
     def shoot(self):
         pass
