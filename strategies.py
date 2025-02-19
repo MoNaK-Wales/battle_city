@@ -85,7 +85,7 @@ class Controll_Strategy(Move_Strategy):
 
         # стрільба
         if (keys[pygame.MOUSEBUTTONDOWN] or keys[pygame.K_x]) and time() - self.last_shot > 0.85:
-            bullet = Bullet(pygame.Vector2(self.entity.rect.center) + pygame.Vector2(self.bullet_pos[self.entity.angle]), self.entity.angle, 2)
+            bullet = Bullet(pygame.Vector2(self.entity.rect.center) + pygame.Vector2(self.bullet_pos[self.entity.angle]), self.entity.angle, True, 2)
             self.last_shot = time()
             return bullet
 

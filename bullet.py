@@ -1,6 +1,7 @@
 import constants
 import strategies
 from set_sprites import Entity
+from sounds_manager import SoundsManager
 
 
 class Bullet(Entity):
@@ -12,6 +13,7 @@ class Bullet(Entity):
         self.direction = direction
         if is_real:
             self.rotate(self.direction)
+            SoundsManager.bullet_init()
 
     def update(self, obstacles, entities, hud):
         self.move(obstacles, entities, hud)

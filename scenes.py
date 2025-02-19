@@ -10,6 +10,7 @@ from constants import *
 from set_sprites import AddableGroup, Base
 from logger import logger
 from strategies import NoMovement
+from sounds_manager import SoundsManager
 
 
 class SceneBase(ABC):
@@ -294,18 +295,20 @@ class StageLoader(SceneBase):
 
     def setup(self):
         logger.info("StageLoader setup")
+        self.screen.fill(self.background_color)
+        self.screen.blit(self.stage_text, self.stage_text_rect)
+        pygame.display.flip()
+        SoundsManager.startlevel()
+        time.sleep(3)
+        next_scene = Stage(self.screen, self.scene_manager, self.level)
+        self.scene_manager.add_scene(f"Stage {self.level}", next_scene)
+        self.scene_manager.switch_scene(f"Stage {self.level}")
 
     def update(self):
         pass
 
     def render(self):
-        self.screen.fill(self.background_color)
-        self.screen.blit(self.stage_text, self.stage_text_rect)
-        pygame.display.flip()
-        time.sleep(5)
-        next_scene = Stage(self.screen, self.scene_manager, self.level)
-        self.scene_manager.add_scene(f"Stage {self.level}", next_scene)
-        self.scene_manager.switch_scene(f"Stage {self.level}")
+        pass
 
     def handle_event(self, event):
         pass

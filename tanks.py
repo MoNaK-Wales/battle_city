@@ -4,6 +4,7 @@ import constants
 from abc import ABC, abstractmethod
 from set_sprites import Entity
 from logger import logger
+from sounds_manager import SoundsManager
 
 
 class Tank(Entity):
@@ -14,7 +15,7 @@ class Tank(Entity):
         ).convert_alpha()
         self.rect = self.image.get_rect(center=self.pos)
         self.bullet_speed = bullet_speed
-
+        
 
 class Hero(Tank):
     def __init__(self, pos, hp=3):
@@ -26,12 +27,15 @@ class Hero(Tank):
         self.active_collectables = []
         self.spawnpoint = pos
 
-    def move(self, obstacles, entities, hud):
-        return self.strategy.move(obstacles, entities, hud)
-
     def change_spawnpoint(self, spawnpoint):
         if isinstance(spawnpoint, pygame.Vector2):
             self.spawnpoint = spawnpoint
+
+    def move(self, obstacles, entities, hud):
+        initial_pos = self.pos.copy()
+        move = self.strategy.move(obstacles, entities, hud)
+        SoundsManager.hero_running(self.pos, initial_pos)
+        return move
 
 
 class Enemy(Tank, ABC):
@@ -44,11 +48,14 @@ class Enemy(Tank, ABC):
 
     def update(self, entities, obstacles, hud):
         entities.remove(self)
+        initial_pos = self.pos.copy()
         self.move(obstacles, entities, hud)
+        SoundsManager.enemy_running(self.pos, initial_pos)
         self.rect.center = self.pos
 
-    def explode(self):
-        self.kill()
+    def kill(self):
+        super().kill()
+        SoundsManager.enemy_destroyed()
 
 class SimpleEnemy(Enemy):
     def __init__(self, pos):
