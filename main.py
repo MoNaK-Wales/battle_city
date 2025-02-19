@@ -1,16 +1,17 @@
 import pygame
 from scenes import *
 from constants import *
+from logger import logger
 
 
 def run_game():
     global screen
     pygame.init()
-    screen = pygame.display.set_mode(sc_size)
+    screen = pygame.display.set_mode(SC_SIZE)
     pygame.display.set_caption("Battle City")
-    
+
     clock = pygame.time.Clock()
-    
+
     scene_manager = SceneManager(screen)
     menu = Menu(screen, scene_manager)
     stage1 = Stage(screen, scene_manager, "assets/stages/stage1")
@@ -26,16 +27,17 @@ def run_game():
     while True:
         clock.tick(FPS)
 
-        
         scene_manager.run_current_scene()
-        drawGrid()
+
+        if DRAW_GRID:
+            drawGrid()
 
         pygame.display.flip()
 
 def drawGrid():
     blockSize = 24 #Set the size of the grid block
-    for x in range(0, sc_x_obj, blockSize):
-        for y in range(0, sc_y_obj, blockSize):
+    for x in range(0, SC_X_OBJ, blockSize):
+        for y in range(0, SC_Y_OBJ, blockSize):
             rect = pygame.Rect(x, y, blockSize, blockSize)
             pygame.draw.rect(screen, (200, 200, 200), rect, 1)
 

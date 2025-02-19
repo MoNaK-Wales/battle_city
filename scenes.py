@@ -3,9 +3,10 @@ import sys
 import level_manager
 import tanks
 import time
-from constants import *
-from abc import ABC, abstractmethod
 from itertools import cycle
+from abc import ABC, abstractmethod
+from constants import *
+from logger import logger
 
 
 class SceneBase(ABC):
@@ -35,24 +36,24 @@ class Menu(SceneBase):
         self.screen = screen
         self.scene_manager = scene_manager
 
-        self.background_color = black
+        self.background_color = BLACK
 
-        self.menu_font = pygame.font.Font(NES_font, font_size * sc_scale)
-        self.start_button = self.menu_font.render("START GAME", False, white, black)
+        self.menu_font = pygame.font.Font(NES_FONT, FONT_SIZE * SC_SCALE)
+        self.start_button = self.menu_font.render("START GAME", False, WHITE, BLACK)
         self.start_button_rect = self.start_button.get_rect()
-        self.start_button_rect.center = (sc_x_obj / 2, sc_y_obj * 0.8)
+        self.start_button_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ * 0.8)
 
         self.logo = pygame.transform.scale_by(
-            pygame.image.load("assets/misc/logo.png").convert(), 0.35 * sc_scale
+            pygame.image.load("assets/misc/logo.png").convert(), 0.35 * SC_SCALE
         )
         self.logo_rect = self.logo.get_rect()
-        self.logo_rect.center = (sc_x_obj / 2, sc_y_obj * 0.540)
+        self.logo_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ * 0.540)
 
         self.tank_logo = pygame.transform.scale_by(
-            pygame.image.load("assets/misc/tank_logo.png").convert(), 0.14 * sc_scale
+            pygame.image.load("assets/misc/tank_logo.png").convert(), 0.14 * SC_SCALE
         )
         self.tank_logo_rect = self.tank_logo.get_rect()
-        self.tank_logo_rect.center = (sc_x_obj / 2, sc_y_obj * 0.2)
+        self.tank_logo_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ * 0.2)
 
     def setup(self):
         logger.info("Menu setup")
@@ -90,32 +91,31 @@ class Stage(SceneBase):
         self.map = map
         self.level_manager = level_manager.LevelLoader(map)
 
-        self.background_color = black
+        self.background_color = BLACK
 
-        self.top_hud = pygame.Surface((sc_x_obj, hud_width))
-        self.top_hud.fill(grey)
-        self.left_hud = pygame.Surface((hud_width, sc_y_obj))
-        self.left_hud.fill(grey)
-        self.bottom_hud = pygame.Surface((sc_x_obj, hud_width))
-        self.bottom_hud.fill(grey)
-        self.right_hud = pygame.Surface((hud_width * 2, sc_y_obj))
-        self.right_hud.fill(grey)
+        self.top_hud = pygame.Surface((SC_X_OBJ, HUD_WIDTH))
+        self.top_hud.fill(GREY)
+        self.left_hud = pygame.Surface((HUD_WIDTH, SC_Y_OBJ))
+        self.left_hud.fill(GREY)
+        self.bottom_hud = pygame.Surface((SC_X_OBJ, HUD_WIDTH))
+        self.bottom_hud.fill(GREY)
+        self.right_hud = pygame.Surface((HUD_WIDTH * 2, SC_Y_OBJ))
+        self.right_hud.fill(GREY)
 
         self.obstacles = [
             self.top_hud.get_rect(),
             self.left_hud.get_rect(),
-            self.bottom_hud.get_rect(topleft=(0, sc_y_obj - hud_width)),
-            self.right_hud.get_rect(topleft=(sc_x_obj - hud_width * 2, 0)),
+            self.bottom_hud.get_rect(topleft=(0, SC_Y_OBJ - HUD_WIDTH)),
+            self.right_hud.get_rect(topleft=(SC_X_OBJ - HUD_WIDTH * 2, 0)),
         ]
 
         self.lastspawn = 0
 
     def setup(self):
         logger.info("Stage setup")
-        
+
         level_obstacles, spawnpoint, enemy_spawns = self.level_manager.load()
         self.obstacles += level_obstacles
-
 
         self.hero = tanks.Hero(spawnpoint, 3)
         self.group = pygame.sprite.Group()
@@ -146,13 +146,13 @@ class Stage(SceneBase):
         self.group.update()
         self.enemies_group.update()
         self.bullets.update(obstacles=self.obstacles, entitys=self.hero, enemy=self.enemies_group)
-        
+
     def render(self):
-        self.screen.fill(black)
+        self.screen.fill(BLACK)
         self.screen.blit(self.top_hud, (0, 0))
         self.screen.blit(self.left_hud, (0, 0))
-        self.screen.blit(self.right_hud, (sc_x_obj - hud_width * 2, 0))
-        self.screen.blit(self.bottom_hud, (0, sc_y_obj - hud_width))
+        self.screen.blit(self.right_hud, (SC_X_OBJ - HUD_WIDTH * 2, 0))
+        self.screen.blit(self.bottom_hud, (0, SC_Y_OBJ - HUD_WIDTH))
         self.bullets.draw(self.screen)
         self.group.draw(self.screen)
         self.enemies_group.draw(self.screen)

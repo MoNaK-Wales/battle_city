@@ -1,13 +1,16 @@
 import pygame
 import constants
 from abc import ABC, abstractmethod
+from logger import logger
 
 class Game_Sprite(pygame.sprite.Sprite):
     def __init__(self, pos, src):
         super().__init__()
 
         self.pos = pygame.Vector2(pos)
-        self.image = pygame.transform.scale_by(pygame.image.load(src), constants.sc_scale).convert_alpha()
+        self.image = pygame.transform.scale_by(
+            pygame.image.load(src), constants.SC_SCALE
+        ).convert_alpha()
         self.rect = self.image.get_rect(center=self.pos)
 
     def update(self):
@@ -18,7 +21,7 @@ class Entity(Game_Sprite):
     def __init__(self, pos, src, strategy, speed):
         super().__init__(pos, src)
 
-        self.speed = constants.speed * speed * constants.sc_scale
+        self.speed = constants.SPEED * speed * constants.SC_SCALE
         self.strategy = strategy(self)
 
         self.angle = 0
@@ -38,29 +41,29 @@ class Entity(Game_Sprite):
         self.strategy.move(obstacles, entitys, enemy)
 
     def rotate(self, angle):
-        constants.logger.info(f"Rotating {angle} {self}")
+        logger.info(f"Rotating {angle} {self}")
         target_angle, target_mirror = self.angle_dict[angle]
         delta_angle = target_angle - self.angle
         self.angle = target_angle
-        constants.logger.debug(f"Target angle - {target_angle}; delta - {delta_angle}")
+        logger.debug(f"Target angle - {target_angle}; delta - {delta_angle}")
 
         self.image = pygame.transform.rotate(self.image, -delta_angle)
         self.rect = self.image.get_rect(center=self.rect.center)
 
         if self.is_mirrored != target_mirror:
-            constants.logger.debug("Sprite must be mirrored")
+            logger.debug("Sprite must be mirrored")
             if target_angle == 180 or target_angle == 0:
                 self.image = pygame.transform.flip(self.image, True, False)
             elif target_angle == 270 or target_angle == 90:
                 self.image = pygame.transform.flip(self.image, False, True)
 
             self.is_mirrored = target_mirror
-        
-        
+
+
 class Obstacle(Game_Sprite):
     def __init__(self, pos, src):
         super().__init__(pos, src)
-        constants.logger.debug(f"Created {type(self)} obstacle on {pos}")
+        logger.debug(f"Created {type(self)} obstacle on {pos}")
 
 
 class Brick(Obstacle):
@@ -91,7 +94,9 @@ class CollideManager:
     @staticmethod
     def checkCollide(entity, obstacle):
         if not (isinstance(entity, Entity) and isinstance(obstacle, (Obstacle, pygame.Rect))):
-            constants.logger.critical(f"checkCollide takes Entity and Obstacle/Rect, but {type(entity)} and {type(obstacle)} are given")
+            logger.critical(
+                f"checkCollide takes Entity and Obstacle/Rect, but {type(entity)} and {type(obstacle)} are given"
+            )
             raise TypeError("First arg must be Entity, the second one must be Obstacle (or just Rect for HUD)")
 
         if isinstance(obstacle, (pygame.Rect, Wall, Brick)):
@@ -113,14 +118,16 @@ class CollideManager:
         #     else:
         #         return True
 
-        constants.logger.error("Not correct Entity object was given, returning False")
+        logger.error("Not correct Entity object was given, returning False")
         return False
-    
+
     @staticmethod
     def checkCollideEntities(entity1, entity2):
         if not (isinstance(entity1, Entity) and isinstance(entity2, Entity)):
-            constants.logger.critical(f"checkCollideEntities takes 2 Entity objects, but {type(entity1)} and {type(entity2)} are given")
+            logger.critical(
+                f"checkCollideEntities takes 2 Entity objects, but {type(entity1)} and {type(entity2)} are given"
+            )
             raise TypeError("Both args must be Entity")
-            
+
         collide = entity1.rect.colliderect(entity2)
         return collide

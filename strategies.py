@@ -7,6 +7,7 @@ from time import *
 from abc import ABC, abstractmethod
 from constants import *
 from bullet import Bullet
+from logger import logger
 
 class Move_Strategy(ABC):
     def __init__(self, entity):
@@ -55,8 +56,8 @@ class Controll_Strategy(Move_Strategy):
         # добавити паузу!!!!!!!!
         if keys[pygame.K_ESCAPE] or keys[pygame.K_KP_ENTER]:
             logger.info("Pause")
-            global Pause
-            Pause = True
+            global PAUSE
+            PAUSE = True
 
         # рух гравця по клавішам
         if keys[pygame.K_w] or keys[pygame.K_UP]:

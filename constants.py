@@ -1,46 +1,36 @@
-import logging
-import sys
-
-
 # main
-logger = logging.getLogger('logger')
-logger.setLevel(logging.DEBUG)
-
-handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(logging.Formatter(fmt='[%(asctime)s %(filename)s:%(funcName)s %(levelname)s] %(message)s'))
-logger.addHandler(handler)
-
 FPS = 60
+DRAW_GRID = False
 
 
 # scenes
-sc_x = 256
-sc_y = 240
+SC_X = 256
+SC_Y = 240
 
-sc_scale = 3
-sc_x_obj = sc_x * sc_scale
-sc_y_obj = sc_y * sc_scale
+SC_SCALE = 1
+SC_X_OBJ = SC_X * SC_SCALE
+SC_Y_OBJ = SC_Y * SC_SCALE
 
-font_size = 12
+FONT_SIZE = 12
 
-sc_size = sc_x_obj, sc_y_obj
+SC_SIZE = SC_X_OBJ, SC_Y_OBJ
 
-hud = 16
-hud_width = hud * sc_scale
+HUD = 16
+HUD_WIDTH = HUD * SC_SCALE
 
-offs_obj = 20
+OFFS_OBJ = 20
 
-black = (0, 0, 0)
-white = (255, 255, 255)
-grey = (115, 115, 115)
-NES_font = "assets/fonts/nes-font.ttf"
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GREY = (115, 115, 115)
+NES_FONT = "assets/fonts/nes-font.ttf"
 
 
 # strategies
-Pause = False
+PAUSE = False
 
 
-#sprites
-speed = 0.4
-speed_bullet = 1.4
-tank_scale = 0.8125
+# sprites
+SPEED = 0.4
+SPEED_BULLET = 1.4
+TANK_SCALE = 0.8125

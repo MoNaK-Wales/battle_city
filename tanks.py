@@ -8,7 +8,9 @@ from set_sprites import Entity
 class Tank(Entity):
     def __init__(self, pos, src, strategy, speed, bullet_speed):
         super().__init__(pos, src, strategy, speed)
-        self.image = pygame.transform.scale_by(pygame.image.load(src), constants.tank_scale * constants.sc_scale).convert_alpha()
+        self.image = pygame.transform.scale_by(
+            pygame.image.load(src), constants.TANK_SCALE * constants.SC_SCALE
+        ).convert_alpha()
         self.rect = self.image.get_rect(center=self.pos)
         self.bullet_speed = bullet_speed
 
@@ -69,7 +71,7 @@ class TankFactory(ABC):
 class EnemyFactory(TankFactory):
     def __init__(self, spawnpoint, type_list):
         if not isinstance(spawnpoint, pygame.Vector2):
-            constants.logger.critical("Not correct spawnpoint")
+            logger.critical("Not correct spawnpoint")
 
         super().__init__(spawnpoint)
         self.enemy_type_dict = {0: SimpleEnemy, 1: FastEnemy}
