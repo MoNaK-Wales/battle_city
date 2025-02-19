@@ -1,5 +1,6 @@
 import pygame
 import constants
+# import bullet
 from abc import ABC, abstractmethod
 from logger import logger
 
@@ -37,8 +38,8 @@ class Entity(Game_Sprite):
         }
         self.is_mirrored = False  # при нижнем и правом положении спрайт отзеркален
 
-    def move(self, obstacles, entitys, enemy):
-        self.strategy.move(obstacles, entitys, enemy)
+    def move(self, obstacles, entities):
+        self.strategy.move(obstacles, entities)
 
     def rotate(self, angle):
         logger.info(f"Rotating {angle} {self}")
@@ -90,44 +91,12 @@ class Base(Obstacle):
     # ДОБАВИТЬ смерть после пуль
 
 
-class CollideManager:
-    @staticmethod
-    def checkCollide(entity, obstacle):
-        if not (isinstance(entity, Entity) and isinstance(obstacle, (Obstacle, pygame.Rect))):
-            logger.critical(
-                f"checkCollide takes Entity and Obstacle/Rect, but {type(entity)} and {type(obstacle)} are given"
-            )
-            raise TypeError("First arg must be Entity, the second one must be Obstacle (or just Rect for HUD)")
-
-        if isinstance(obstacle, (pygame.Rect, Wall, Brick)):
-            collide = entity.rect.colliderect(obstacle)
-            # if isinstance(entity, Bullet), isinstance(obstacle, Wall):
-            #     obstacle.destroy()
-            return collide
-        elif isinstance(obstacle, Foliage):
-            return False
-
-        # if isinstance(entity, Hero): #or isinstance(entity, Enemy)
-        #     return True
-        # elif isinstance(entity, Bullet):
-        #     if isinstance(obstacle, Water):
-        #         return False
-        #     elif isinstance(obstacle, Brick):
-        #         obstacle.destroy()
-        #         return True
-        #     else:
-        #         return True
-
-        logger.error("Not correct Entity object was given, returning False")
-        return False
-
-    @staticmethod
-    def checkCollideEntities(entity1, entity2):
-        if not (isinstance(entity1, Entity) and isinstance(entity2, Entity)):
-            logger.critical(
-                f"checkCollideEntities takes 2 Entity objects, but {type(entity1)} and {type(entity2)} are given"
-            )
-            raise TypeError("Both args must be Entity")
-
-        collide = entity1.rect.colliderect(entity2)
-        return collide
+class AddableGroup(pygame.sprite.Group):
+    def __add__(self, other):
+        if isinstance(other, pygame.sprite.Group):
+            copy = self.copy()
+            copy.add(other.sprites())
+            return copy
+        else:
+            logger.error(f"Can't add {type(other)} to AddableGroup")
+            return copy

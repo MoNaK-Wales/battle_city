@@ -6,6 +6,7 @@ import time
 from itertools import cycle
 from abc import ABC, abstractmethod
 from constants import *
+from set_sprites import AddableGroup
 from logger import logger
 
 
@@ -118,12 +119,13 @@ class Stage(SceneBase):
         self.obstacles += level_obstacles
 
         self.hero = tanks.Hero(spawnpoint, 3)
-        self.group = pygame.sprite.Group()
-        self.group.add(self.hero)
-        self.group.add(level_obstacles)
-        self.bullets = pygame.sprite.Group()
 
-        self.enemies_group = pygame.sprite.Group()
+        self.obstacles_group = AddableGroup(level_obstacles)
+        self.hero_group = AddableGroup(self.hero)
+        self.bullets = AddableGroup()
+        self.enemies_group = AddableGroup()
+
+        self.bullets + self.enemies_group
 
         enemy_types = [
             [0, 0, 0, 0, 0, 0],                     #временно для проверки
@@ -141,11 +143,13 @@ class Stage(SceneBase):
         logger.debug(f"Starting obstacles (HUD): {self.obstacles}")
 
     def update(self):
-        self.hero.move(self.obstacles, None, self.enemies_group, self.bullets)
+        possible_bullet = self.hero.move(self.obstacles, self.enemies_group)
+        if possible_bullet is not None:
+            self.bullets.add(possible_bullet)
         self.spawn_enemy()
-        self.group.update()
+        self.hero_group.update()
         self.enemies_group.update()
-        self.bullets.update(obstacles=self.obstacles, entitys=self.hero, enemy=self.enemies_group)
+        self.bullets.update(obstacles=self.obstacles, entities=(self.hero_group + self.enemies_group))
 
     def render(self):
         self.screen.fill(BLACK)
@@ -154,8 +158,9 @@ class Stage(SceneBase):
         self.screen.blit(self.right_hud, (SC_X_OBJ - HUD_WIDTH * 2, 0))
         self.screen.blit(self.bottom_hud, (0, SC_Y_OBJ - HUD_WIDTH))
         self.bullets.draw(self.screen)
-        self.group.draw(self.screen)
+        self.hero_group.draw(self.screen)
         self.enemies_group.draw(self.screen)
+        self.obstacles_group.draw(self.screen)
 
     def handle_event(self, event):
         pass
@@ -164,8 +169,8 @@ class Stage(SceneBase):
         logger.info("Stage cleanup")
 
     def spawn_enemy(self):
-        timenow = time.time() - self.lastspawn
-        if len(self.enemies_group) < 4 and timenow > 5:
+        time_between_spawning = time.time() - self.lastspawn
+        if len(self.enemies_group) < 4 and time_between_spawning > 5:
             factory = next(self.factories_iter)
             new_enemy = factory.spawn()
             self.enemies_group.add(new_enemy)

@@ -28,6 +28,7 @@ NES_FONT = "assets/fonts/nes-font.ttf"
 
 # strategies
 PAUSE = False
+TILE_SIZE = 8 * SC_SCALE
 
 
 # sprites

@@ -35,7 +35,7 @@ def run_game():
         pygame.display.flip()
 
 def drawGrid():
-    blockSize = 24 #Set the size of the grid block
+    blockSize = 24
     for x in range(0, SC_X_OBJ, blockSize):
         for y in range(0, SC_Y_OBJ, blockSize):
             rect = pygame.Rect(x, y, blockSize, blockSize)

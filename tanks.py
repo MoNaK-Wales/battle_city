@@ -26,8 +26,8 @@ class Hero(Tank):
         self.active_collectables = []
         self.spawnpoint = pos
 
-    def move(self, obstacles, entitys, enemy, bullet_group):
-        self.strategy.move(obstacles, entitys, enemy, bullet_group)
+    def move(self, obstacles, entities):
+        return self.strategy.move(obstacles, entities)
 
     def change_spawnpoint(self, spawnpoint):
         if isinstance(spawnpoint, pygame.Vector2):
