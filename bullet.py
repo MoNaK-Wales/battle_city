@@ -14,8 +14,8 @@ class Bullet(Entity):
             self.rotate(self.direction)
 
     def update(self, obstacles, entities):
-        self.rect.center = self.pos
         self.move(obstacles, entities)
+        self.rect.center = self.pos
 
     def kill(self):
         # anim.play

@@ -155,7 +155,7 @@ class Stage(SceneBase):
             self.bullets.add(possible_bullet)
         self.spawn_enemy()
         self.hero_group.update()
-        self.enemies_group.update()
+        self.enemies_group.update(obstacles=self.obstacles, entities=(self.hero_group + self.enemies_group))
         self.bullets.update(obstacles=self.obstacles, entities=(self.hero_group + self.enemies_group))
 
     def render(self):

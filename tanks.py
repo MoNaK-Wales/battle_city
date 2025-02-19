@@ -42,6 +42,11 @@ class Enemy(Tank, ABC):
     def shoot(self):
         pass
 
+    def update(self, entities, obstacles):
+        entities.remove(self)
+        self.move(obstacles, entities)
+        self.rect.center = self.pos
+
     def explode(self):
         self.kill()
 
