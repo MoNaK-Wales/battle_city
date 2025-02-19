@@ -13,6 +13,7 @@ class LevelLoader:
         "#": Brick,
         "@": Wall,
         "%": Foliage,
+        "B": pygame.Vector2,
         "H": pygame.Vector2,
         "E": pygame.Vector2
     }
@@ -26,6 +27,7 @@ class LevelLoader:
         self.objects = []
         self.enemy_spawns = []
         self.spawnpoint = None
+        self.base_pos = None
 
     def load(self):
         with open(self.filename, "r") as file:
@@ -39,9 +41,11 @@ class LevelLoader:
                 if cell in self.SYMBOLS:
                     if cell == "H":
                         self.spawnpoint = self.SYMBOLS[cell](x, y) + self.CENTER
+                    elif cell == "B":
+                        self.base_pos = self.SYMBOLS[cell](x, y) + self.CENTER
                     elif cell == "E":
                         self.enemy_spawns.append(self.SYMBOLS[cell](x, y) + self.CENTER)
                     else:
                         self.objects.append(self.SYMBOLS[cell]((x, y)))
 
-        return self.objects, self.spawnpoint, self.enemy_spawns
+        return self.objects, self.spawnpoint, self.base_pos, self.enemy_spawns

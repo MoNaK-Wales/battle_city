@@ -13,8 +13,8 @@ class Bullet(Entity):
         if is_real:
             self.rotate(self.direction)
 
-    def update(self, obstacles, entities):
-        self.move(obstacles, entities)
+    def update(self, obstacles, entities, hud):
+        self.move(obstacles, entities, hud)
         self.rect.center = self.pos
 
     def kill(self):

@@ -7,8 +7,9 @@ from itertools import cycle
 from os import path
 from abc import ABC, abstractmethod
 from constants import *
-from set_sprites import AddableGroup
+from set_sprites import AddableGroup, Base
 from logger import logger
+from strategies import NoMovement
 
 
 class SceneBase(ABC):
@@ -110,7 +111,7 @@ class Stage(SceneBase):
         self.right_hud = pygame.Surface((HUD_WIDTH * 2, SC_Y_OBJ))
         self.right_hud.fill(GREY)
 
-        self.obstacles = [
+        self.hud = [
             self.top_hud.get_rect(),
             self.left_hud.get_rect(),
             self.bottom_hud.get_rect(topleft=(0, SC_Y_OBJ - HUD_WIDTH)),
@@ -118,16 +119,41 @@ class Stage(SceneBase):
         ]
 
         self.lastspawn = 0
+        self.gameover_timer = 0
+
+        self.gameover = False
+        self.gameover_image = pygame.transform.scale_by(
+            pygame.image.load("assets/misc/game_over.png").convert_alpha(), SC_SCALE
+        )
+        self.gameover_rect = self.gameover_image.get_rect(
+            center=(SC_X_OBJ / 2 - HUD_WIDTH, SC_Y_OBJ + 50)
+        )
+
+        self.enemies_count_rects = []
+        for height in range(10):
+            for width in range(2):
+                self.enemies_count_rects.append(
+                    pygame.Rect(
+                        SC_X_OBJ - 24 * SC_SCALE + TILE_SIZE * width,
+                        24 * SC_SCALE + TILE_SIZE * height,
+                        TILE_SIZE,
+                        TILE_SIZE,
+                    )
+                )
+        self.enemies_count_image = pygame.transform.scale_by(
+            pygame.image.load("assets/misc/HUD/enemies.png"), SC_SCALE
+        )
 
     def setup(self):
         logger.info("Stage setup")
 
-        level_obstacles, spawnpoint, enemy_spawns = self.level_manager.load()
-        self.obstacles += level_obstacles
+        level_obstacles, spawnpoint, base_pos, enemy_spawns = self.level_manager.load()
 
         self.hero = tanks.Hero(spawnpoint, 3)
+        self.base = Base(base_pos, self)
 
         self.obstacles_group = AddableGroup(level_obstacles)
+        self.obstacles_group.add(self.base)
         self.hero_group = AddableGroup(self.hero)
         self.bullets = AddableGroup()
         self.enemies_group = AddableGroup()
@@ -147,16 +173,34 @@ class Stage(SceneBase):
         self.factories_iter = cycle(enemy_factories)
         self.enemy_spawn_count = 20
 
-        logger.debug(f"Starting obstacles (HUD): {self.obstacles}")
+        logger.debug(f"Starting obstacles (HUD): {self.hud}")
 
     def update(self):
-        possible_bullet = self.hero.move(self.obstacles, self.enemies_group)
+        possible_bullet = self.hero.move(
+            self.obstacles_group, self.enemies_group, self.hud
+        )
         if possible_bullet is not None:
             self.bullets.add(possible_bullet)
         self.spawn_enemy()
         self.hero_group.update()
-        self.enemies_group.update(obstacles=self.obstacles, entities=(self.hero_group + self.enemies_group))
-        self.bullets.update(obstacles=self.obstacles, entities=(self.hero_group + self.enemies_group))
+        self.enemies_group.update(
+            obstacles=self.obstacles_group,
+            entities=(self.hero_group + self.enemies_group),
+            hud=self.hud,
+        )
+        self.bullets.update(
+            obstacles=self.obstacles_group,
+            entities=(self.hero_group + self.enemies_group),
+            hud=self.hud,
+        )
+
+        self.enemies_count_rects = self.enemies_count_rects[: self.enemy_spawn_count]
+
+        if self.gameover and self.gameover_rect.centery > SC_Y_OBJ / 2:
+            self.gameover_rect.centery -= 1 * SC_SCALE
+
+        if self.gameover and time.time() - self.gameover_timer > 10:
+            self.scene_manager.switch_scene("Menu")
 
     def render(self):
         self.screen.fill(self.background_color)
@@ -168,6 +212,10 @@ class Stage(SceneBase):
         self.hero_group.draw(self.screen)
         self.enemies_group.draw(self.screen)
         self.obstacles_group.draw(self.screen)
+        self.screen.blit(self.gameover_image, self.gameover_rect)
+
+        for rect in self.enemies_count_rects:
+            self.screen.blit(self.enemies_count_image, rect)
 
     def handle_event(self, event):
         pass
@@ -189,7 +237,6 @@ class Stage(SceneBase):
             logger.info(f"Enemies not spawned yet count: {self.enemy_spawn_count}")
             self.lastspawn = time.time()
 
-
         if self.enemy_spawn_count == 0 and len(self.enemies_group) == 0:
             if path.isfile("assets/stages/stage" + str(self.level + 1)):
                 logger.info(f"Loading {self.level + 1} stage")
@@ -201,6 +248,12 @@ class Stage(SceneBase):
                 next_scene = StageLoader(self.screen, self.scene_manager, 1)
                 self.scene_manager.add_scene(f"StageLoader 1", next_scene)
                 self.scene_manager.switch_scene(f"StageLoader 1")
+
+    def game_over(self):
+        logger.info("Game Over")
+        self.hero.strategy = NoMovement(self.hero)
+        self.gameover_timer = time.time()
+        self.gameover = True
 
 
 class StageLoader(SceneBase):

@@ -1,7 +1,7 @@
 import pygame
 from logger import logger
 from bullet import Bullet
-from set_sprites import Entity, Obstacle, Wall, Brick, Foliage
+from set_sprites import Entity, Obstacle, Wall, Brick, Foliage, Base
 
 
 class CollideManager:
@@ -13,26 +13,15 @@ class CollideManager:
             )
             raise TypeError("First arg must be Entity, the second one must be Obstacle (or just Rect for HUD)")
 
-        if isinstance(obstacle, (pygame.Rect, Wall, Brick)):
+        if isinstance(obstacle, (pygame.Rect, Wall, Brick, Base)):
             collide = entity.rect.colliderect(obstacle)
             if isinstance(entity, Bullet) and collide:
-                # if isinstance(obstacle, Brick):
-                #     obstacle.destroy()
+                if isinstance(obstacle, (Brick, Base)):
+                    obstacle.destroy()
                 entity.kill()
             return collide
         elif isinstance(obstacle, Foliage):
             return False
-
-        # if isinstance(entity, Hero): #or isinstance(entity, Enemy)
-        #     return True
-        # elif isinstance(entity, Bullet):
-        #     if isinstance(obstacle, Water):
-        #         return False
-        #     elif isinstance(obstacle, Brick):
-        #         obstacle.destroy()
-        #         return True
-        #     else:
-        #         return True
 
         logger.error("Not correct Entity object was given, returning False")
         return False

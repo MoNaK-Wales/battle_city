@@ -26,8 +26,8 @@ class Hero(Tank):
         self.active_collectables = []
         self.spawnpoint = pos
 
-    def move(self, obstacles, entities):
-        return self.strategy.move(obstacles, entities)
+    def move(self, obstacles, entities, hud):
+        return self.strategy.move(obstacles, entities, hud)
 
     def change_spawnpoint(self, spawnpoint):
         if isinstance(spawnpoint, pygame.Vector2):
@@ -42,9 +42,9 @@ class Enemy(Tank, ABC):
     def shoot(self):
         pass
 
-    def update(self, entities, obstacles):
+    def update(self, entities, obstacles, hud):
         entities.remove(self)
-        self.move(obstacles, entities)
+        self.move(obstacles, entities, hud)
         self.rect.center = self.pos
 
     def explode(self):

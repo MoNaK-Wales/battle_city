@@ -26,17 +26,21 @@ class Move_Strategy(ABC):
 
     # логика движения
     @abstractmethod
-    def move(self, obstacles, entities):
+    def move(self, obstacles, entities, hud):
         pass
 
     # обработка движения
-    def move_entity(self, direction_name, obstacles, entities):
+    def move_entity(self, direction_name, obstacles, entities, hud):
         new_pos = self.entity.pos + self.directions[direction_name]
 
         future_entity = self.entity.__class__(new_pos)
         collides = [
             CollideManager.checkCollide(future_entity, obstacle)
             for obstacle in obstacles
+        ]
+        collides += [
+            CollideManager.checkCollide(future_entity, hud_rect)
+            for hud_rect in hud
         ]
         collides += [
             CollideManager.checkCollideEntities(future_entity, entity)
@@ -60,7 +64,7 @@ class Controll_Strategy(Move_Strategy):
             270: (-TILE_SIZE, 0),
         }
 
-    def move(self, obstacles, enemies):
+    def move(self, obstacles, enemies, hud):
         keys = pygame.key.get_pressed()
 
         # добавити паузу!!!!!!!!
@@ -71,13 +75,13 @@ class Controll_Strategy(Move_Strategy):
 
         # рух гравця по клавішам
         if keys[pygame.K_w] or keys[pygame.K_UP]:
-            self.move_entity("up", obstacles, enemies)
+            self.move_entity("up", obstacles, enemies, hud)
         elif keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            self.move_entity("down", obstacles, enemies)
+            self.move_entity("down", obstacles, enemies, hud)
         elif keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            self.move_entity("left", obstacles, enemies)
+            self.move_entity("left", obstacles, enemies, hud)
         elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            self.move_entity("right", obstacles, enemies)
+            self.move_entity("right", obstacles, enemies, hud)
 
         # стрільба
         if (keys[pygame.MOUSEBUTTONDOWN] or keys[pygame.K_x]) and time() - self.last_shot > 0.85:
@@ -97,8 +101,8 @@ class Enemy_Strategy(Move_Strategy):
         self.move_delay = random.randint(10, 50)
         self.random_direction = random.choice(["up", "down", "left", "right"])
 
-    def move(self, obstacles, entities):
-        self.move_entity(self.random_direction, obstacles, entities)
+    def move(self, obstacles, entities, hud):
+        self.move_entity(self.random_direction, obstacles, entities, hud)
         if self.move_timer >= self.move_delay:
             self.random_direction = random.choice(["up", "down", "left", "right"])
             self.move_timer = 0
@@ -108,13 +112,17 @@ class Enemy_Strategy(Move_Strategy):
 
 
 class Bullet_strategy(Move_Strategy):
-    def move_entity(self, direction_name, obstacles, entities):
+    def move_entity(self, direction_name, obstacles, entities, hud):
         new_pos = self.entity.pos + self.directions[direction_name]
 
         future_bullet = Bullet(new_pos, self.entity.angle_dict[direction_name][0], False)
         collides = [
             CollideManager.checkCollide(future_bullet, obstacle)
             for obstacle in obstacles
+        ]
+        collides += [
+            CollideManager.checkCollide(future_bullet, hud_rect)
+            for hud_rect in hud
         ]
         collides += [
             CollideManager.checkCollideEntities(future_bullet, entity)
@@ -126,12 +134,16 @@ class Bullet_strategy(Move_Strategy):
         else:
             self.entity.kill()
 
-    def move(self, obstacles, entities):
+    def move(self, obstacles, entities, hud):
         if self.entity.direction == 0:
-            self.move_entity("up", obstacles, entities)
+            self.move_entity("up", obstacles, entities, hud)
         if self.entity.direction == 90:
-            self.move_entity("right", obstacles, entities)
+            self.move_entity("right", obstacles, entities, hud)
         if self.entity.direction == 180:
-            self.move_entity("down", obstacles, entities)
+            self.move_entity("down", obstacles, entities, hud)
         if self.entity.direction == 270:
-            self.move_entity("left", obstacles, entities)
+            self.move_entity("left", obstacles, entities, hud)
+
+class NoMovement(Move_Strategy):
+    def move(self, obstacles, entities, hud):
+        pass

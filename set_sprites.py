@@ -38,11 +38,11 @@ class Entity(Game_Sprite):
         }
         self.is_mirrored = False  # при нижнем и правом положении спрайт отзеркален
 
-    def move(self, obstacles, entities):
-        self.strategy.move(obstacles, entities)
+    def move(self, obstacles, entities, hud):
+        self.strategy.move(obstacles, entities, hud)
 
     def rotate(self, angle):
-        logger.info(f"Rotating {angle} {self}")
+        logger.debug(f"Rotating {angle} {self}")
         target_angle, target_mirror = self.angle_dict[angle]
         delta_angle = target_angle - self.angle
         self.angle = target_angle
@@ -71,9 +71,8 @@ class Brick(Obstacle):
     def __init__(self, pos):
         super().__init__(pos, "assets/blocks/brick.png")
 
-    # ДОБАВИТЬ после пуль
-    # def destroy():
-    #     pass
+    def destroy(self):
+        self.kill()
 
 
 class Wall(Obstacle):
@@ -85,10 +84,19 @@ class Foliage(Obstacle):
         super().__init__(pos, "assets/blocks/foliage.png")
 
 class Base(Obstacle):
-    def __init__(self, pos):
+    def __init__(self, pos, stage_scene):
         super().__init__(pos, "assets/blocks/base.png")
+        self.dead_image = pygame.transform.scale_by(
+            pygame.image.load("assets/blocks/base_gm_over.png"), constants.SC_SCALE
+        ).convert_alpha()
+        self.stage_scene = stage_scene
 
-    # ДОБАВИТЬ смерть после пуль
+    def destroy(self):
+        logger.info("Base destroyed")
+        self.image = self.dead_image
+        self.rect = self.image.get_rect(center=self.pos)
+        self.update()
+        self.stage_scene.game_over()
 
 
 class AddableGroup(pygame.sprite.Group):
