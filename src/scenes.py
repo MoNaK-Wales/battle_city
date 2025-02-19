@@ -1,9 +1,9 @@
 import pygame
 import sys
-import level_manager
-import tanks
 import time
-from constants import *
+import src.sprites.tanks as tanks
+from src.managers import level_manager
+from src.constants import *
 from abc import ABC, abstractmethod
 from itertools import cycle
 
@@ -121,7 +121,6 @@ class Stage(SceneBase):
         self.group = pygame.sprite.Group()
         self.group.add(self.hero)
         self.group.add(level_obstacles)
-        self.group.add(self.enemy)
         self.bullets = pygame.sprite.Group()
 
         self.enemies_group = pygame.sprite.Group()
@@ -142,11 +141,11 @@ class Stage(SceneBase):
         logger.debug(f"Starting obstacles (HUD): {self.obstacles}")
 
     def update(self):
-        self.hero.move(self.obstacles, None, self.enemy, self.bullets)
+        self.hero.move(self.obstacles, None, list(self.enemies_group), self.bullets)
         self.spawn_enemy()
         self.group.update()
         self.enemies_group.update()
-        self.bullets.update(obstacles=self.obstacles, entitys=self.hero, enemy=self.enemy)
+        self.bullets.update(obstacles=self.obstacles, entitys=self.hero, enemy=None)
         
     def render(self):
         self.screen.fill(black)

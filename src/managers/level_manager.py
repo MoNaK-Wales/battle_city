@@ -1,7 +1,7 @@
 import pygame
 from os import path
-from constants import *
-from set_sprites import *
+from src.constants import *
+from src.sprites.obstacles import *
 
 
 class LevelLoader:
@@ -43,12 +43,3 @@ class LevelLoader:
                         self.objects.append(self.SYMBOLS[cell]((x, y)))
 
         return self.objects, self.spawnpoint, self.enemy_spawns
-
-
-# level1 = LevelLoader("assets/stages/stage1")
-# objects = level1.load()
-
-
-# def drTest():
-#     for obj in objects:
-#         obj.draw(screen)

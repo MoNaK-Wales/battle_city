@@ -1,15 +1,17 @@
 import pygame
 import pygame.math
-import set_sprites
-import tanks
-from abc import ABC, abstractmethod
-from constants import *
 import random
+import src.sprites.tanks as tanks
+from src.sprites.game_sprites_parents import Entity
+from src.sprites.bullets import Bullet
+from src.managers.collide_manager import CollideManager
+from abc import ABC, abstractmethod
+from src.constants import *
 from time import *
 
 class Move_Strategy(ABC):
     def __init__(self, entity):
-        if not isinstance(entity, set_sprites.Entity):
+        if not isinstance(entity, Entity):
             raise TypeError("Not an Entity")
 
         self.entity = entity
@@ -40,8 +42,8 @@ class Controll_Strategy(Move_Strategy):
         new_pos = self.entity.pos + self.directions[direction_name]
         
         future_hero = tanks.Hero(new_pos)
-        collides = [set_sprites.CollideManager.checkCollide(future_hero, obstacle) for obstacle in obstacles]
-        collides.append(set_sprites.CollideManager.checkCollideEntities(future_hero, entitys))
+        collides = [CollideManager.checkCollide(future_hero, obstacle) for obstacle in obstacles]
+        collides += [CollideManager.checkCollideEntities(future_hero, entity) for entity in entitys]
 
         if not any(collides):
             self.entity.pos = new_pos
@@ -69,7 +71,7 @@ class Controll_Strategy(Move_Strategy):
 
         # стрільба
         if (keys[pygame.MOUSEBUTTONDOWN] or keys[pygame.K_x]) and time() - self.last_shot > 0.85:
-            bullet = set_sprites.Bullet(self.entity.rect.center, self.entity.angle, 2)
+            bullet = Bullet(self.entity.rect.center, self.entity.angle, 2)
             bullet_group.add(bullet)
             self.last_shot = time()
 
@@ -78,9 +80,9 @@ class Enemy_Strategy(Move_Strategy):
     def move_enemy(self, direction_name, obstacles, entitys, enemy):
         new_pos = self.entity.pos + self.directions[direction_name]
 
-        future_enemy = set_sprites.Enemy(new_pos)
-        collides = [set_sprites.CollideManager.checkCollide(future_enemy, obstacle) for obstacle in obstacles]
-        collides.append(set_sprites.CollideManager.checkCollideEntities(future_enemy, entitys))
+        future_enemy = tanks.Enemy(new_pos)
+        collides = [CollideManager.checkCollide(future_enemy, obstacle) for obstacle in obstacles]
+        collides.append(CollideManager.checkCollideEntities(future_enemy, entitys))
         
         if not any(collides):
             self.entity.pos = new_pos
@@ -116,11 +118,11 @@ class Bullet_strategy(Move_Strategy):
     def move_bullet(self, direction_name, obstacles, entitys, enemy):
         new_pos = self.entity.pos + self.directions[direction_name]
 
-        future_bullet = set_sprites.Bullet(
+        future_bullet = Bullet(
             new_pos, entitys.angle_dict[direction_name][0]
         )
-        collides = [set_sprites.CollideManager.checkCollide(future_bullet, obstacle) for obstacle in obstacles]
-        # collides.append(set_sprites.CollideManager.checkCollideEntities(future_bullet, entitys))
+        collides = [CollideManager.checkCollide(future_bullet, obstacle) for obstacle in obstacles]
+        # collides.append(CollideManager.checkCollideEntities(future_bullet, entitys))
 
         if not any(collides):
             self.entity.pos = new_pos

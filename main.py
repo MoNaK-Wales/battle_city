@@ -1,6 +1,6 @@
 import pygame
-from scenes import *
-from constants import *
+from src.scenes import *
+from src.constants import *
 
 
 def run_game():
