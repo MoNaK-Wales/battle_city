@@ -144,6 +144,18 @@ class Stage(SceneBase):
             pygame.image.load("assets/misc/HUD/enemies.png"), SC_SCALE
         )
 
+        self.hp_font = pygame.font.Font(NES_FONT, SMALL_FONT_SIZE * SC_SCALE)
+        self.hp_label = self.hp_font.render("ÆP", False, BLACK, GREY)
+        self.hp_label_rect = self.hp_label.get_rect(center=(SC_X_OBJ - 16 * SC_SCALE, 140 * SC_SCALE))
+        self.hp_icon = pygame.transform.scale_by(pygame.image.load("assets/misc/HUD/lifes.png"), SC_SCALE)
+        self.hp_icon_rect = self.hp_icon.get_rect(center=(SC_X_OBJ - 21 * SC_SCALE, 148 * SC_SCALE))
+
+        self.stage_font = pygame.font.Font(NES_FONT, SMALL_FONT_SIZE * SC_SCALE)
+        self.stage_number = self.stage_font.render("{:02}".format(self.level), False, BLACK, GREY)
+        self.stage_number_rect = self.stage_number.get_rect(center=(SC_X_OBJ - 16 * SC_SCALE, SC_Y_OBJ - 36 * SC_SCALE))
+        self.stage_number_icon = pygame.transform.scale_by(pygame.image.load("assets/misc/HUD/stage_number.png"), SC_SCALE)
+        self.stage_number_icon_rect = self.stage_number_icon.get_rect(center=(SC_X_OBJ - 16 * SC_SCALE, SC_Y_OBJ - 48 * SC_SCALE))
+
     def setup(self):
         logger.info("Stage setup")
 
@@ -202,6 +214,11 @@ class Stage(SceneBase):
         if self.gameover and time.time() - self.gameover_timer > 10:
             self.scene_manager.switch_scene("Menu")
 
+        self.hp_number_font = pygame.font.Font(NES_FONT, SMALL_FONT_SIZE * SC_SCALE)
+        self.hp_number = self.hp_number_font.render(f"{self.hero.hp}", False, BLACK, GREY)
+        self.hp_number_rect = self.stage_number_icon.get_rect(size=(TILE_SIZE, TILE_SIZE))
+        self.hp_number_rect.center = (SC_X_OBJ - 11 * SC_SCALE, 148 * SC_SCALE)
+
     def render(self):
         self.screen.fill(self.background_color)
         self.screen.blit(self.top_hud, (0, 0))
@@ -212,6 +229,11 @@ class Stage(SceneBase):
         self.hero_group.draw(self.screen)
         self.enemies_group.draw(self.screen)
         self.obstacles_group.draw(self.screen)
+        self.screen.blit(self.hp_label, self.hp_label_rect)
+        self.screen.blit(self.hp_icon, self.hp_icon_rect)
+        self.screen.blit(self.hp_number, self.hp_number_rect)
+        self.screen.blit(self.stage_number_icon, self.stage_number_icon_rect)
+        self.screen.blit(self.stage_number, self.stage_number_rect)
         self.screen.blit(self.gameover_image, self.gameover_rect)
 
         for rect in self.enemies_count_rects:

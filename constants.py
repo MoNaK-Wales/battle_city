@@ -12,6 +12,7 @@ SC_X_OBJ = SC_X * SC_SCALE
 SC_Y_OBJ = SC_Y * SC_SCALE
 
 FONT_SIZE = 12
+SMALL_FONT_SIZE = 8
 
 SC_SIZE = SC_X_OBJ, SC_Y_OBJ
 
@@ -22,7 +23,7 @@ OFFS_OBJ = 20
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-GREY = (115, 115, 115)
+GREY = (99, 99, 99)
 NES_FONT = "assets/fonts/nes-font.ttf"
 
 
