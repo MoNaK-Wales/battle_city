@@ -12,12 +12,13 @@ class LevelLoader:
     SYMBOLS = {
         "#": Brick,
         "@": Wall,
-        "L": Foliage,
+        "%": Foliage,
         "H": pygame.Vector2,
         "E": pygame.Vector2
     }
 
     def __init__(self, filename):
+        logger.debug(f"Loading level from {filename}")
         if not path.isfile(filename):
             raise FileNotFoundError(filename)
 

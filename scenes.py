@@ -4,6 +4,7 @@ import level_manager
 import tanks
 import time
 from itertools import cycle
+from os import path
 from abc import ABC, abstractmethod
 from constants import *
 from set_sprites import AddableGroup
@@ -11,6 +12,11 @@ from logger import logger
 
 
 class SceneBase(ABC):
+
+    def __init__(self, screen, scene_manager):
+        self.screen = screen
+        self.scene_manager = scene_manager
+
     @abstractmethod
     def setup(self):  # перед загрузкой сцены
         pass
@@ -34,8 +40,7 @@ class SceneBase(ABC):
 
 class Menu(SceneBase):
     def __init__(self, screen, scene_manager):
-        self.screen = screen
-        self.scene_manager = scene_manager
+        super().__init__(screen, scene_manager)
 
         self.background_color = BLACK
 
@@ -69,11 +74,11 @@ class Menu(SceneBase):
             mouse_x, mouse_y = event.pos
             if self.start_button_rect.collidepoint(mouse_x, mouse_y):
                 logger.debug(f"LMB click on start button at {event.pos}")
-                self.scene_manager.switch_scene("Stage 1")
+                self.scene_manager.switch_scene("StageLoader 1")
         elif event.type == pygame.KEYDOWN:
             if pygame.key.get_pressed()[pygame.K_RETURN]:  # enter
                 logger.debug(f"Starting game via enter")
-                self.scene_manager.switch_scene("Stage 1")
+                self.scene_manager.switch_scene("StageLoader 1")
 
     def render(self):
         pass
@@ -86,11 +91,13 @@ class Menu(SceneBase):
 
 
 class Stage(SceneBase):
-    def __init__(self, screen, scene_manager, map):
-        self.screen = screen
-        self.scene_manager = scene_manager
-        self.map = map
-        self.level_manager = level_manager.LevelLoader(map)
+
+    def __init__(self, screen, scene_manager, level):
+        super().__init__(screen, scene_manager)
+
+        self.level = level
+        self.map = "assets/stages/stage" + str(level)
+        self.level_manager = level_manager.LevelLoader(self.map)
 
         self.background_color = BLACK
 
@@ -138,7 +145,7 @@ class Stage(SceneBase):
             tanks.EnemyFactory(enemy_spawns[0], enemy_types[0]),
         ]
         self.factories_iter = cycle(enemy_factories)
-        self.enemy_count = 0
+        self.enemy_spawn_count = 20
 
         logger.debug(f"Starting obstacles (HUD): {self.obstacles}")
 
@@ -152,7 +159,7 @@ class Stage(SceneBase):
         self.bullets.update(obstacles=self.obstacles, entities=(self.hero_group + self.enemies_group))
 
     def render(self):
-        self.screen.fill(BLACK)
+        self.screen.fill(self.background_color)
         self.screen.blit(self.top_hud, (0, 0))
         self.screen.blit(self.left_hud, (0, 0))
         self.screen.blit(self.right_hud, (SC_X_OBJ - HUD_WIDTH * 2, 0))
@@ -170,11 +177,66 @@ class Stage(SceneBase):
 
     def spawn_enemy(self):
         time_between_spawning = time.time() - self.lastspawn
-        if len(self.enemies_group) < 4 and time_between_spawning > 5:
+        if (
+            len(self.enemies_group) < 4
+            and time_between_spawning > 2
+            and self.enemy_spawn_count > 0
+        ):
             factory = next(self.factories_iter)
             new_enemy = factory.spawn()
             self.enemies_group.add(new_enemy)
+            self.enemy_spawn_count -= 1
+            logger.info(f"Enemies not spawned yet count: {self.enemy_spawn_count}")
             self.lastspawn = time.time()
+
+
+        if self.enemy_spawn_count == 0 and len(self.enemies_group) == 0:
+            if path.isfile("assets/stages/stage" + str(self.level + 1)):
+                logger.info(f"Loading {self.level + 1} stage")
+                next_scene = StageLoader(self.screen, self.scene_manager, self.level + 1)
+                self.scene_manager.add_scene(f"StageLoader {self.level + 1}", next_scene)
+                self.scene_manager.switch_scene(f"StageLoader {self.level + 1}")
+            else:
+                logger.warning(f"New Stage is not found, starting from 1")
+                next_scene = StageLoader(self.screen, self.scene_manager, 1)
+                self.scene_manager.add_scene(f"StageLoader 1", next_scene)
+                self.scene_manager.switch_scene(f"StageLoader 1")
+
+
+class StageLoader(SceneBase):
+    def __init__(self, screen, scene_manager, level):
+        super().__init__(screen, scene_manager)
+
+        self.background_color = GREY
+        self.level = level
+
+        self.stage_font = pygame.font.Font(NES_FONT, FONT_SIZE * SC_SCALE)
+        self.stage_text = self.stage_font.render(
+            f"STAGE {self.level}", False, BLACK, GREY
+        )
+        self.stage_text_rect = self.stage_text.get_rect()
+        self.stage_text_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ / 2)
+
+    def setup(self):
+        logger.info("StageLoader setup")
+
+    def update(self):
+        pass
+
+    def render(self):
+        self.screen.fill(self.background_color)
+        self.screen.blit(self.stage_text, self.stage_text_rect)
+        pygame.display.flip()
+        time.sleep(5)
+        next_scene = Stage(self.screen, self.scene_manager, self.level)
+        self.scene_manager.add_scene(f"Stage {self.level}", next_scene)
+        self.scene_manager.switch_scene(f"Stage {self.level}")
+
+    def handle_event(self, event):
+        pass
+
+    def cleanup(self):
+        logger.info("StageLoader cleanup")
 
 
 class SceneManager:

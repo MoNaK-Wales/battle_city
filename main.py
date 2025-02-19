@@ -14,9 +14,9 @@ def run_game():
 
     scene_manager = SceneManager(screen)
     menu = Menu(screen, scene_manager)
-    stage1 = Stage(screen, scene_manager, "assets/stages/stage1")
+    stage1 = StageLoader(screen, scene_manager, 1)
     scene_manager.add_scene("Menu", menu)
-    scene_manager.add_scene("Stage 1", stage1)
+    scene_manager.add_scene("StageLoader 1", stage1)
     scene_manager.switch_scene("Menu")
 
     logger.info("Run game")
