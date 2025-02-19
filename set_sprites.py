@@ -41,7 +41,7 @@ class Entity(Game_Sprite):
     def move(self, obstacles, entities, hud):
         self.strategy.move(obstacles, entities, hud)
 
-    def rotate(self, angle):
+    def rotate(self, angle, to_return=False):
         logger.debug(f"Rotating {angle} {self}")
         target_angle, target_mirror = self.angle_dict[angle]
         delta_angle = target_angle - self.angle

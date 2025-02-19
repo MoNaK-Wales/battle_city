@@ -2,6 +2,7 @@ import constants
 import strategies
 from set_sprites import Entity
 from sounds_manager import SoundsManager
+from explosion import Explosion
 
 
 class Bullet(Entity):
@@ -11,6 +12,7 @@ class Bullet(Entity):
         self.speed = speed * constants.SPEED_BULLET * constants.SC_SCALE
         self.strategy = strategies.Bullet_strategy(self)
         self.direction = direction
+        self.is_real = is_real
         if is_real:
             self.rotate(self.direction)
             SoundsManager.bullet_init()
@@ -20,5 +22,6 @@ class Bullet(Entity):
         self.rect.center = self.pos
 
     def kill(self):
-        # anim.play
+        if self.is_real:
+            Explosion(self.pos).small_explosion()
         super().kill()
