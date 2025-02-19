@@ -5,8 +5,10 @@ from set_sprites import Entity
 
 class Bullet(Entity):
     def __init__(self, pos, direction, speed = 2):
-        speed *= constants.SPEED_BULLET * constants.SC_SCALE
         super().__init__( pos, "assets/sprites/bullet.png", strategies.Bullet_strategy, speed)
+        
+        self.speed = speed * constants.SPEED_BULLET * constants.SC_SCALE
+        self.strategy = strategies.Bullet_strategy(self)
         self.direction = direction
 
     def update(self, obstacles, entitys, enemy):

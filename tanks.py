@@ -3,6 +3,7 @@ import strategies
 import constants
 from abc import ABC, abstractmethod
 from set_sprites import Entity
+from logger import logger
 
 
 class Tank(Entity):

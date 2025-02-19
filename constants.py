@@ -7,7 +7,7 @@ DRAW_GRID = False
 SC_X = 256
 SC_Y = 240
 
-SC_SCALE = 1
+SC_SCALE = 3
 SC_X_OBJ = SC_X * SC_SCALE
 SC_Y_OBJ = SC_Y * SC_SCALE
 
@@ -32,5 +32,5 @@ PAUSE = False
 
 # sprites
 SPEED = 0.4
-SPEED_BULLET = 1.4
+SPEED_BULLET = 1.2
 TANK_SCALE = 0.8125
