@@ -169,9 +169,7 @@ class Stage(SceneBase):
         self.obstacles_group.add(self.base)
         self.hero_group = AddableGroup(self.hero)
         self.bullets = AddableGroup()
-        self.enemies_group = AddableGroup()
-
-        self.bullets + self.enemies_group
+        self.enemies_group = AddableGroup()\
 
         enemy_types = [
             [0, 0, 0, 0, 0, 0],                     #временно для проверки

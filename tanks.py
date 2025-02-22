@@ -60,14 +60,17 @@ class Enemy(Tank, ABC):
 
     def update(self, entities, obstacles, hud):
         entities.remove(self)
-        initial_pos = self.pos.copy()
         self.move(obstacles, entities, hud)
-        # self.anim()
-        SoundsManager.enemy_running(self.pos, initial_pos)
         self.rect.center = self.pos
+
+        # self.anim()
+
+        is_have_enemies = any(isinstance(entity, Enemy) for entity in entities)
+        SoundsManager.enemy_running(True)
 
     def kill(self):
         super().kill()
+        SoundsManager.enemy_running(False)
         SoundsManager.enemy_destroyed()
 
 class SimpleEnemy(Enemy):
