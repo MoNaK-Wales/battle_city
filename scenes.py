@@ -184,6 +184,11 @@ class Stage(SceneBase):
         self.factories_iter = cycle(enemy_factories)
         self.enemy_spawn_count = 20
 
+        self.hp_number_font = pygame.font.Font(NES_FONT, SMALL_FONT_SIZE * SC_SCALE)
+        self.hp_number = self.hp_number_font.render(f"{self.hero.hp}", False, BLACK, GREY)
+        self.hp_number_rect = self.stage_number_icon.get_rect(size=(TILE_SIZE, TILE_SIZE))
+        self.hp_number_rect.center = (SC_X_OBJ - 11 * SC_SCALE, 148 * SC_SCALE)
+
         logger.debug(f"Starting obstacles (HUD): {self.hud}")
 
     def update(self):
@@ -207,16 +212,13 @@ class Stage(SceneBase):
 
         self.enemies_count_rects = self.enemies_count_rects[: self.enemy_spawn_count]
 
+        self.hp_number = self.hp_number_font.render(f"{self.hero.hp}", False, BLACK, GREY)
+
         if self.gameover and self.gameover_rect.centery > SC_Y_OBJ / 2:
             self.gameover_rect.centery -= 1 * SC_SCALE
 
         if self.gameover and time.time() - self.gameover_timer > 10:
             self.scene_manager.switch_scene("Menu")
-
-        self.hp_number_font = pygame.font.Font(NES_FONT, SMALL_FONT_SIZE * SC_SCALE)
-        self.hp_number = self.hp_number_font.render(f"{self.hero.hp}", False, BLACK, GREY)
-        self.hp_number_rect = self.stage_number_icon.get_rect(size=(TILE_SIZE, TILE_SIZE))
-        self.hp_number_rect.center = (SC_X_OBJ - 11 * SC_SCALE, 148 * SC_SCALE)
 
     def render(self):
         self.screen.fill(self.background_color)
