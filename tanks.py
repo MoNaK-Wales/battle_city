@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from set_sprites import Entity
 from logger import logger
 from sounds_manager import SoundsManager
-from explosion import Explosion
+from anims import Explosion, SpawnAnim
 
 
 class Tank(Entity):
@@ -118,14 +118,20 @@ class TankFactory(ABC):
 
 
 class EnemyFactory(TankFactory):
-    def __init__(self, spawnpoint, type_list, expl_group):
+    def __init__(self, spawnpoint, type_list, anims_group):
         if not isinstance(spawnpoint, pygame.Vector2):
             logger.critical("Not correct spawnpoint")
 
         super().__init__(spawnpoint)
+        self.anims_group = anims_group
         self.enemy_type_dict = {0: SimpleEnemy, 1: FastEnemy}
-        self.type_list = [self.enemy_type_dict[i](self.spawnpoint, expl_group) for i in type_list]
+        self.type_list = [self.enemy_type_dict[i](self.spawnpoint, anims_group) for i in type_list]
         self.enemies_iter = iter(self.type_list)
 
-    def spawn(self):
-        return next(self.enemies_iter)
+    def spawn(self, enemies_group):
+        def create_enemy():
+            new_enemy = next(self.enemies_iter)
+            enemies_group.add(new_enemy)
+            logger.info(f"{type(new_enemy)} object spawned")
+
+        SpawnAnim(self.spawnpoint, self.anims_group, create_enemy)

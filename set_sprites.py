@@ -1,7 +1,7 @@
 import pygame
 import constants
 from logger import logger
-from explosion import Explosion
+from anims import Explosion
 from sounds_manager import SoundsManager
 
 

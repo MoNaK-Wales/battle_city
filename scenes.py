@@ -158,15 +158,17 @@ class Stage(SceneBase):
         self.stage_number_icon = pygame.transform.scale_by(pygame.image.load("assets/misc/HUD/stage_number.png"), SC_SCALE)
         self.stage_number_icon_rect = self.stage_number_icon.get_rect(center=(SC_X_OBJ - 16 * SC_SCALE, SC_Y_OBJ - 48 * SC_SCALE))
         
-        self.explosions_group = AddableGroup()
+        self.animations_group = AddableGroup()
+
+        self.end_delay = 5
 
     def setup(self):
         logger.info("Stage setup")
 
         level_obstacles, spawnpoint, base_pos, enemy_spawns = self.level_manager.load()
 
-        self.hero = tanks.Hero(spawnpoint, 3, self.explosions_group)
-        self.base = Base(base_pos, self, self.explosions_group)
+        self.hero = tanks.Hero(spawnpoint, 3, self.animations_group)
+        self.base = Base(base_pos, self, self.animations_group)
 
         self.obstacles_group = AddableGroup(level_obstacles)
         self.obstacles_group.add(self.base)
@@ -180,9 +182,9 @@ class Stage(SceneBase):
             [0, 0, 0, 1, 0, 0, 0]
         ]
         enemy_factories = [
-            tanks.EnemyFactory(enemy_spawns[1], enemy_types[1], self.explosions_group),
-            tanks.EnemyFactory(enemy_spawns[2], enemy_types[2], self.explosions_group),
-            tanks.EnemyFactory(enemy_spawns[0], enemy_types[0], self.explosions_group),
+            tanks.EnemyFactory(enemy_spawns[1], enemy_types[1], self.animations_group),
+            tanks.EnemyFactory(enemy_spawns[2], enemy_types[2], self.animations_group),
+            tanks.EnemyFactory(enemy_spawns[0], enemy_types[0], self.animations_group),
         ]
         self.factories_iter = cycle(enemy_factories)
         self.enemy_spawn_count = 20
@@ -203,7 +205,7 @@ class Stage(SceneBase):
                 pygame.Vector2(self.hero.rect.center) + pygame.Vector2(bullet_pos),
                 self.hero.angle,
                 True,
-                self.explosions_group,
+                self.animations_group,
                 2,
             )
             self.bullets.add(bullet)
@@ -220,7 +222,7 @@ class Stage(SceneBase):
             entities=(self.hero_group + self.enemies_group),
             hud=self.hud,
         )
-        self.explosions_group.update()
+        self.animations_group.update()
 
         self.enemies_count_rects = self.enemies_count_rects[: self.enemy_spawn_count]
 
@@ -232,6 +234,8 @@ class Stage(SceneBase):
         if self.gameover and time.time() - self.gameover_timer > 10:
             self.scene_manager.switch_scene("Menu")
 
+        self.check_level_end()
+
     def render(self):
         self.screen.fill(self.background_color)
         self.screen.blit(self.top_hud, (0, 0))
@@ -242,7 +246,7 @@ class Stage(SceneBase):
         self.hero_group.draw(self.screen)
         self.enemies_group.draw(self.screen)
         self.obstacles_group.draw(self.screen)
-        self.explosions_group.draw(self.screen)
+        self.animations_group.draw(self.screen)
         self.screen.blit(self.hp_label, self.hp_label_rect)
         self.screen.blit(self.hp_icon, self.hp_icon_rect)
         self.screen.blit(self.hp_number, self.hp_number_rect)
@@ -263,27 +267,29 @@ class Stage(SceneBase):
         time_between_spawning = time.time() - self.lastspawn
         if (
             len(self.enemies_group) < 4
-            and time_between_spawning > 2
+            and time_between_spawning > 3
             and self.enemy_spawn_count > 0
         ):
             factory = next(self.factories_iter)
-            new_enemy = factory.spawn()
-            self.enemies_group.add(new_enemy)
+            factory.spawn(self.enemies_group)
             self.enemy_spawn_count -= 1
             logger.info(f"Enemies not spawned yet count: {self.enemy_spawn_count}")
             self.lastspawn = time.time()
 
+    def check_level_end(self):
         if self.enemy_spawn_count == 0 and len(self.enemies_group) == 0:
-            if path.isfile("assets/stages/stage" + str(self.level + 1)):
-                logger.info(f"Loading {self.level + 1} stage")
-                next_scene = StageLoader(self.screen, self.scene_manager, self.level + 1)
-                self.scene_manager.add_scene(f"StageLoader {self.level + 1}", next_scene)
-                self.scene_manager.switch_scene(f"StageLoader {self.level + 1}")
-            else:
-                logger.warning(f"New Stage is not found, starting from 1")
-                next_scene = StageLoader(self.screen, self.scene_manager, 1)
-                self.scene_manager.add_scene(f"StageLoader 1", next_scene)
-                self.scene_manager.switch_scene(f"StageLoader 1")
+            self.last_check = time.time()
+            if time.time() - self.last_check > self.end_delay:
+                if path.isfile("assets/stages/stage" + str(self.level + 1)):
+                    logger.info(f"Loading {self.level + 1} stage")
+                    next_scene = StageLoader(self.screen, self.scene_manager, self.level + 1)
+                    self.scene_manager.add_scene(f"StageLoader {self.level + 1}", next_scene)
+                    self.scene_manager.switch_scene(f"StageLoader {self.level + 1}")
+                else:
+                    logger.warning(f"New Stage is not found, starting from 1")
+                    next_scene = StageLoader(self.screen, self.scene_manager, 1)
+                    self.scene_manager.add_scene(f"StageLoader 1", next_scene)
+                    self.scene_manager.switch_scene(f"StageLoader 1")
 
     def game_over(self):
         logger.info("Game Over")

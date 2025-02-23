@@ -2,7 +2,7 @@ import constants
 import strategies
 from set_sprites import Entity
 from sounds_manager import SoundsManager
-from explosion import Explosion
+from anims import Explosion
 
 
 class Bullet(Entity):
