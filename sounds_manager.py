@@ -15,6 +15,9 @@ class SoundsManager:
     enemy_destroyed_music = pygame.mixer.Sound("assets/sounds/enemy destroy.wav")
     player_destroyed_music = pygame.mixer.Sound("assets/sounds/player destroy.wav")
 
+    pause_music = pygame.mixer.Sound("assets/sounds/pause.wav")
+    channel_pause = pygame.mixer.Channel(3)
+
     channel_player = pygame.mixer.Channel(1)  # Канал для игрока
     channel_player.play(hero_running_music, -1)
     channel_player.pause()
@@ -23,6 +26,7 @@ class SoundsManager:
     channel_enemy = pygame.mixer.Channel(2)  # Канал для врагов
     channel_enemy.play(enemy_running_music, -1)
     channel_enemy.pause()
+    channel_enemy_paused = True
 
     @staticmethod
     def startlevel():
@@ -41,8 +45,10 @@ class SoundsManager:
     def enemy_running(is_on):
         if is_on and SoundsManager.channel_player_paused:
             SoundsManager.channel_enemy.unpause()
+            channel_enemy_paused = False
         else:
             SoundsManager.channel_enemy.pause()
+            channel_enemy_paused = True
 
     @staticmethod
     def bullet_init():
@@ -63,3 +69,16 @@ class SoundsManager:
     @staticmethod
     def player_destroyed():
         SoundsManager.player_destroyed_music.play()
+
+    @staticmethod
+    def pause_play():
+        SoundsManager.channel_pause.play(SoundsManager.pause_music)
+
+    @staticmethod
+    def pause(is_paused):
+        if is_paused:
+            pygame.mixer.pause()
+        else:
+            pygame.mixer.unpause()
+            if SoundsManager.channel_enemy_paused:
+                SoundsManager.channel_enemy.pause()

@@ -57,12 +57,6 @@ class Controll_Strategy(Move_Strategy):
     def move(self, obstacles, enemies, hud):
         keys = pygame.key.get_pressed()
 
-        # добавити паузу!!!!!!!!
-        if keys[pygame.K_ESCAPE] or keys[pygame.K_KP_ENTER]:
-            logger.info("Pause")
-            global PAUSE
-            PAUSE = True
-
         # рух гравця по клавішам
         if keys[pygame.K_w] or keys[pygame.K_UP]:
             self.move_entity("up", obstacles, enemies, hud)
