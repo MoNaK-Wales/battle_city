@@ -54,16 +54,6 @@ class Move_Strategy(ABC):
 
 
 class Controll_Strategy(Move_Strategy):
-    def __init__(self, entity):
-        super().__init__(entity)
-        self.last_shot = 0
-        self.bullet_pos = {
-            0: (0, -TILE_SIZE),
-            90: (TILE_SIZE, 0),
-            180: (0, TILE_SIZE),
-            270: (-TILE_SIZE, 0),
-        }
-
     def move(self, obstacles, enemies, hud):
         keys = pygame.key.get_pressed()
 
@@ -84,10 +74,11 @@ class Controll_Strategy(Move_Strategy):
             self.move_entity("right", obstacles, enemies, hud)
 
         # стрільба
-        if (keys[pygame.MOUSEBUTTONDOWN] or keys[pygame.K_x]) and time() - self.last_shot > 0.85:
-            bullet = Bullet(pygame.Vector2(self.entity.rect.center) + pygame.Vector2(self.bullet_pos[self.entity.angle]), self.entity.angle, True, 2)
-            self.last_shot = time()
-            return bullet
+        if (
+            keys[pygame.MOUSEBUTTONDOWN] or keys[pygame.K_x]
+        ) and time() - self.entity.last_shot > 0.85:
+            self.entity.last_shot = time()
+            return True
 
         return None
 
@@ -115,7 +106,7 @@ class Bullet_strategy(Move_Strategy):
     def move_entity(self, direction_name, obstacles, entities, hud):
         new_pos = self.entity.pos + self.directions[direction_name]
 
-        future_bullet = Bullet(new_pos, self.entity.angle_dict[direction_name][0], False)
+        future_bullet = Bullet(new_pos, self.entity.angle_dict[direction_name][0])
         collides = [
             CollideManager.checkCollide(future_bullet, obstacle)
             for obstacle in obstacles

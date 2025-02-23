@@ -4,7 +4,8 @@ import constants
 from abc import ABC, abstractmethod
 from logger import logger
 
-class Game_Sprite(pygame.sprite.Sprite):
+
+class GameSprite(pygame.sprite.Sprite):
     def __init__(self, pos, src):
         super().__init__()
 
@@ -18,7 +19,7 @@ class Game_Sprite(pygame.sprite.Sprite):
         self.rect.center = self.pos
 
 
-class Entity(Game_Sprite):
+class Entity(GameSprite):
     def __init__(self, pos, src, strategy, speed):
         super().__init__(pos, src)
 
@@ -61,7 +62,7 @@ class Entity(Game_Sprite):
             self.is_mirrored = target_mirror
 
 
-class Obstacle(Game_Sprite):
+class Obstacle(GameSprite):
     def __init__(self, pos, src):
         super().__init__(pos, src)
         logger.debug(f"Created {type(self)} obstacle on {pos}")

@@ -6,9 +6,10 @@ from explosion import Explosion
 
 
 class Bullet(Entity):
-    def __init__(self, pos, direction, is_real = True, speed = 2):
+    def __init__(self, pos, direction, is_real = False, expl_group = None, speed = 2):
         super().__init__( pos, "assets/sprites/bullet.png", strategies.Bullet_strategy, speed)
         
+        self.expl_group = expl_group
         self.speed = speed * constants.SPEED_BULLET * constants.SC_SCALE
         self.strategy = strategies.Bullet_strategy(self)
         self.direction = direction
@@ -23,5 +24,5 @@ class Bullet(Entity):
 
     def kill(self):
         if self.is_real:
-            Explosion(self.pos).small_explosion()
+            Explosion(self.pos, "small", self.expl_group)
         super().kill()
