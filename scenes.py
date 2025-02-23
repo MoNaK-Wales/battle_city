@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 from constants import *
 from set_sprites import AddableGroup, Base
 from logger import logger
+from bullet import Bullet
 from strategies import NoMovement
 from sounds_manager import SoundsManager
 
@@ -156,20 +157,22 @@ class Stage(SceneBase):
         self.stage_number_rect = self.stage_number.get_rect(center=(SC_X_OBJ - 16 * SC_SCALE, SC_Y_OBJ - 36 * SC_SCALE))
         self.stage_number_icon = pygame.transform.scale_by(pygame.image.load("assets/misc/HUD/stage_number.png"), SC_SCALE)
         self.stage_number_icon_rect = self.stage_number_icon.get_rect(center=(SC_X_OBJ - 16 * SC_SCALE, SC_Y_OBJ - 48 * SC_SCALE))
+        
+        self.explosions_group = AddableGroup()
 
     def setup(self):
         logger.info("Stage setup")
 
         level_obstacles, spawnpoint, base_pos, enemy_spawns = self.level_manager.load()
 
-        self.hero = tanks.Hero(spawnpoint, 3)
+        self.hero = tanks.Hero(spawnpoint, 3, self.explosions_group)
         self.base = Base(base_pos, self)
 
         self.obstacles_group = AddableGroup(level_obstacles)
         self.obstacles_group.add(self.base)
         self.hero_group = AddableGroup(self.hero)
         self.bullets = AddableGroup()
-        self.enemies_group = AddableGroup()\
+        self.enemies_group = AddableGroup()
 
         enemy_types = [
             [0, 0, 0, 0, 0, 0],                     #временно для проверки
@@ -177,9 +180,9 @@ class Stage(SceneBase):
             [0, 0, 0, 1, 0, 0, 0]
         ]
         enemy_factories = [
-            tanks.EnemyFactory(enemy_spawns[1], enemy_types[1]),
-            tanks.EnemyFactory(enemy_spawns[2], enemy_types[2]),
-            tanks.EnemyFactory(enemy_spawns[0], enemy_types[0]),
+            tanks.EnemyFactory(enemy_spawns[1], enemy_types[1], self.explosions_group),
+            tanks.EnemyFactory(enemy_spawns[2], enemy_types[2], self.explosions_group),
+            tanks.EnemyFactory(enemy_spawns[0], enemy_types[0], self.explosions_group),
         ]
         self.factories_iter = cycle(enemy_factories)
         self.enemy_spawn_count = 20
@@ -192,11 +195,19 @@ class Stage(SceneBase):
         logger.debug(f"Starting obstacles (HUD): {self.hud}")
 
     def update(self):
-        possible_bullet = self.hero.move(
+        can_create_bullet, bullet_pos = self.hero.move(
             self.obstacles_group, self.enemies_group, self.hud
         )
-        if possible_bullet is not None:
-            self.bullets.add(possible_bullet)
+        if can_create_bullet is not None:
+            bullet = Bullet(
+                pygame.Vector2(self.hero.rect.center) + pygame.Vector2(bullet_pos),
+                self.hero.angle,
+                True,
+                self.explosions_group,
+                2,
+            )
+            self.bullets.add(bullet)
+
         self.spawn_enemy()
         self.hero_group.update()
         self.enemies_group.update(
@@ -209,6 +220,7 @@ class Stage(SceneBase):
             entities=(self.hero_group + self.enemies_group),
             hud=self.hud,
         )
+        self.explosions_group.update()
 
         self.enemies_count_rects = self.enemies_count_rects[: self.enemy_spawn_count]
 
@@ -230,6 +242,7 @@ class Stage(SceneBase):
         self.hero_group.draw(self.screen)
         self.enemies_group.draw(self.screen)
         self.obstacles_group.draw(self.screen)
+        self.explosions_group.draw(self.screen)
         self.screen.blit(self.hp_label, self.hp_label_rect)
         self.screen.blit(self.hp_icon, self.hp_icon_rect)
         self.screen.blit(self.hp_number, self.hp_number_rect)
