@@ -211,32 +211,21 @@ class Stage(SceneBase):
     def update(self):
         if self.pause:
             return
-
-        can_create_bullet, bullet_pos = self.hero.move(
-            self.obstacles_group, self.enemies_group, self.hud
-        )
-        if can_create_bullet is not None:
-            bullet = Bullet(
-                pygame.Vector2(self.hero.rect.center) + pygame.Vector2(bullet_pos),
-                self.hero.angle,
-                True,
-                self.animations_group,
-                2,
-            )
-            self.bullets.add(bullet)
+        
+        kwargs = {
+            "obstacles": self.obstacles_group,
+            "entities": self.hero_group + self.enemies_group,
+            "hud": self.hud,
+            "bullets": self.bullets,
+            "anims": self.animations_group,
+        }
+        hero_kwargs = kwargs.copy()
+        hero_kwargs.update(entities=self.enemies_group)
 
         self.spawn_enemy()
-        self.hero_group.update()
-        self.enemies_group.update(
-            obstacles=self.obstacles_group,
-            entities=(self.hero_group + self.enemies_group),
-            hud=self.hud,
-        )
-        self.bullets.update(
-            obstacles=self.obstacles_group,
-            entities=(self.hero_group + self.enemies_group),
-            hud=self.hud,
-        )
+        self.hero_group.update(**hero_kwargs)
+        self.enemies_group.update(**kwargs)
+        self.bullets.update(**kwargs)
         self.animations_group.update()
 
         self.enemies_count_rects = self.enemies_count_rects[: self.enemy_spawn_count]
@@ -322,7 +311,7 @@ class Stage(SceneBase):
 
     def game_over(self):
         logger.info("Game Over")
-        self.hero.strategy = NoMovement(self.hero)
+        self.hero.strategy = NoMovement()
         self.gameover_timer = time.time()
         self.gameover = True
 

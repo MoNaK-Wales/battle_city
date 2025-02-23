@@ -24,7 +24,7 @@ class Entity(GameSprite):
         super().__init__(pos, src)
 
         self.speed = constants.SPEED * speed * constants.SC_SCALE
-        self.strategy = strategy(self)
+        self.strategy = strategy(self, None, None, None, None, None)
 
         self.angle = 0
         self.angle_dict = {
@@ -43,8 +43,15 @@ class Entity(GameSprite):
         #только у Enemy этот флаг True, добавлен сюда во избежание ошибок
         self.is_overlap_player = False 
 
-    def move(self, obstacles, entities, hud):
-        self.strategy.move(obstacles, entities, hud)
+    def update(self, **kwargs):
+        self.strategy.obstacles = kwargs["obstacles"]
+        self.strategy.entities = kwargs["entities"]
+        self.strategy.hud = kwargs["hud"]
+        self.strategy.bullets = kwargs["bullets"]
+        self.strategy.anims = kwargs["anims"]
+
+    def move(self):
+        self.strategy.move()
 
     def rotate(self, angle):
         logger.debug(f"Rotating {angle} {self}")

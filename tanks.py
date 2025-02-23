@@ -14,7 +14,7 @@ from anims import Explosion, SpawnAnim
 class Tank(Entity):
     scale = constants.TANK_SCALE * constants.SC_SCALE
 
-    def __init__(self, pos, src, strategy, speed, bullet_speed, anim_sprite, expl_group):
+    def __init__(self, pos, src, anim_sprite, strategy, speed, bullet_speed, expl_group):
         super().__init__(pos, src, strategy, speed)
 
         self.image = pygame.transform.scale_by(pygame.image.load(src), self.scale).convert_alpha()
@@ -27,6 +27,9 @@ class Tank(Entity):
         self.lastanim = 0
 
         self.expl_group = expl_group
+
+    def update(self, **kwargs):
+        super().update(**kwargs)
 
     def anim(self):
         if time() - self.lastanim > self.delay:
@@ -41,33 +44,29 @@ class Tank(Entity):
 
 
 class Hero(Tank):
+    sprite1 = "assets/sprites/tanks/hero_anim1.png"
+    sprite2 = "assets/sprites/tanks/hero_anim2.png"
+    strategy = strategies.ControllStrategy
+
     def __init__(self, pos, hp=3, expl_group = None):
-        super().__init__(
-            pos, "assets/sprites/tanks/hero_anim1.png", strategies.Controll_Strategy, 2, 2, "assets/sprites/tanks/hero_anim2.png", expl_group
-        )
+        super().__init__(pos, self.sprite1, self.sprite2, self.strategy, 2, 2, expl_group)
 
         self.hp = hp
         self.active_collectables = []
         self.spawnpoint = pos
 
-        self.last_shot = 0
-        self.bullet_pos = {
-            0: (0, -constants.TILE_SIZE),
-            90: (constants.TILE_SIZE, 0),
-            180: (0, constants.TILE_SIZE),
-            270: (-constants.TILE_SIZE, 0),
-        }
-
     def change_spawnpoint(self, spawnpoint):
         if isinstance(spawnpoint, pygame.Vector2):
             self.spawnpoint = spawnpoint
 
-    def move(self, obstacles, entities, hud):
+    def update(self, **kwargs):
         initial_pos = self.pos.copy()
-        can_create_bullet = self.strategy.move(obstacles, entities, hud)
+
+        super().update(**kwargs)
+        self.strategy.move()
+        self.rect.center = self.pos
 
         SoundsManager.hero_running(self.pos, initial_pos)
-        return can_create_bullet, self.bullet_pos[self.angle]
     
     def kill(self):
         super().kill()
@@ -75,8 +74,10 @@ class Hero(Tank):
 
 
 class Enemy(Tank, ABC):
-    def __init__(self, pos, src, strategy, speed, bullet_speed, anim_sprite, expl_group = None):
-        super().__init__(pos, src, strategy, speed, bullet_speed, anim_sprite, expl_group)
+    def __init__(self, pos, src, anim_sprite, strategy, speed, bullet_speed, shoot_delay, expl_group = None):
+        super().__init__(pos, src, anim_sprite, strategy, speed, bullet_speed, expl_group)
+
+        self.shoot_delay = shoot_delay
 
         # при спавне враг будет считаться находящимся внутри игрока, и только после выхода из него (может сразу при спавне) 
         # флаг отключается и может проверяться коллизия
@@ -86,17 +87,20 @@ class Enemy(Tank, ABC):
     def shoot(self):
         pass
 
-    def update(self, entities, obstacles, hud):
+    def update(self, **kwargs):
         if self.is_overlap_player:
-            hero = self.find_hero(entities)
+            hero = self.find_hero(kwargs["entities"])
             if hero is None:
                 self.is_overlap_player = False
             else:
                 self.check_player_overlapping(hero)
 
-        entities_copy = entities.copy()
+        entities_copy = kwargs["entities"].copy()
         entities_copy.remove(self)
-        self.move(obstacles, entities_copy, hud)
+        new_kwargs = kwargs.copy()
+        new_kwargs.update(entities=entities_copy)
+        super().update(**new_kwargs)
+        self.move()
         self.rect.center = self.pos
 
         SoundsManager.enemy_running(True)
@@ -119,15 +123,25 @@ class Enemy(Tank, ABC):
         SoundsManager.enemy_destroyed()
 
 class SimpleEnemy(Enemy):
+    sprite1 = "assets/sprites/tanks/enemy1_anim1.png"
+    sprite2 = "assets/sprites/tanks/enemy1_anim2.png"
+    strategy = strategies.EnemyStrategy
+    shoot_delay = 4/3 * constants.FPS
+
     def __init__(self, pos, expl_group = None):
-        super().__init__(pos, "assets/sprites/tanks/enemy1_anim1.png", strategies.Enemy_Strategy, 1, 1, "assets/sprites/tanks/enemy1_anim2.png", expl_group)
+        super().__init__(pos, self.sprite1, self.sprite2, self.strategy, 1, 1, self.shoot_delay, expl_group)
 
     def shoot(self):
         pass
 
 class FastEnemy(Enemy):
+    sprite1 = "assets/sprites/tanks/enemy2_anim1.png"
+    sprite2 = "assets/sprites/tanks/enemy2_anim2.png"
+    strategy = strategies.EnemyStrategy
+    shoot_delay = 4/3 * constants.FPS
+
     def __init__(self, pos, expl_group = None):
-        super().__init__(pos, "assets/sprites/tanks/enemy2_anim1.png", strategies.Enemy_Strategy, 3, 2, "assets/sprites/tanks/enemy2_anim2.png", expl_group)
+        super().__init__(pos, self.sprite1, self.sprite2, self.strategy, 3, 2, self.shoot_delay, expl_group)
 
     def shoot(self):
         pass
