@@ -94,8 +94,9 @@ class Enemy(Tank, ABC):
             else:
                 self.check_player_overlapping(hero)
 
-        entities.remove(self)
-        self.move(obstacles, entities, hud)
+        entities_copy = entities.copy()
+        entities_copy.remove(self)
+        self.move(obstacles, entities_copy, hud)
         self.rect.center = self.pos
 
         SoundsManager.enemy_running(True)
