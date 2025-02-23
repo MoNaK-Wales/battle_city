@@ -13,6 +13,7 @@ class SoundsManager:
     bullet_wall_music = pygame.mixer.Sound("assets/sounds/shooting wall.wav")
     bullet_bricks_music = pygame.mixer.Sound("assets/sounds/shooting bricks.wav")
     enemy_destroyed_music = pygame.mixer.Sound("assets/sounds/enemy destroy.wav")
+    player_destroyed_music = pygame.mixer.Sound("assets/sounds/player destroy.wav")
 
     channel_player = pygame.mixer.Channel(1)  # Канал для игрока
     channel_player.play(hero_running_music, -1)
@@ -58,3 +59,7 @@ class SoundsManager:
     @staticmethod
     def enemy_destroyed():
         SoundsManager.enemy_destroyed_music.play()
+
+    @staticmethod
+    def player_destroyed():
+        SoundsManager.player_destroyed_music.play()

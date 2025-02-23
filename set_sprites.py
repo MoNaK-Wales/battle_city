@@ -2,6 +2,7 @@ import pygame
 import constants
 from logger import logger
 from explosion import Explosion
+from sounds_manager import SoundsManager
 
 
 class GameSprite(pygame.sprite.Sprite):
@@ -99,6 +100,7 @@ class Base(Obstacle):
         self.update()
 
         Explosion(self.pos, "big", self.expl_group)
+        SoundsManager.player_destroyed()
         self.stage_scene.game_over()
 
 

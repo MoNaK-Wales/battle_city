@@ -67,6 +67,10 @@ class Hero(Tank):
 
         SoundsManager.hero_running(self.pos, initial_pos)
         return can_create_bullet, self.bullet_pos[self.angle]
+    
+    def kill(self):
+        super().kill()
+        SoundsManager.player_destroyed()
 
 
 class Enemy(Tank, ABC):
