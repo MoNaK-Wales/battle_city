@@ -41,8 +41,18 @@ class CollideManager:
         if entity1.is_overlap_player or entity2.is_overlap_player:
             return False # если враг находиться внутри игрока, коллизия не проверяется
 
-        collide = entity1.rect.colliderect(entity2)
-        if collide and (isinstance(entity1, Bullet) or isinstance(entity2, Bullet)):
-            entity1.kill()
-            entity2.kill()        
+        collide = entity1.rect.colliderect(entity2) 
+        if collide:
+            if isinstance(entity1, Bullet):
+                if entity2.__class__.__name__.endswith("Enemy") and entity1.of_enemy:
+                    return False
+                else:
+                    entity1.kill()
+                    entity2.kill()
+            elif isinstance(entity2, Bullet):
+                if entity1.__class__.__name__.endswith("Enemy") and entity2.of_enemy:
+                    return False
+                else:
+                    entity1.kill()
+                    entity2.kill()
         return collide

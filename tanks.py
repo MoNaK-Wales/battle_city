@@ -6,7 +6,6 @@ from itertools import cycle
 from abc import ABC, abstractmethod
 from set_sprites import Entity
 from logger import logger
-from collide_manager import CollideManager
 from sounds_manager import SoundsManager
 from anims import Explosion, SpawnAnim
 
@@ -125,7 +124,7 @@ class Enemy(Tank, ABC):
 class SimpleEnemy(Enemy):
     sprite1 = "assets/sprites/tanks/enemy1_anim1.png"
     sprite2 = "assets/sprites/tanks/enemy1_anim2.png"
-    strategy = strategies.EnemyStrategy
+    strategy = strategies.EnemyEasyStrategy
     shoot_delay = 4/3 * constants.FPS
 
     def __init__(self, pos, expl_group = None):
@@ -137,7 +136,7 @@ class SimpleEnemy(Enemy):
 class FastEnemy(Enemy):
     sprite1 = "assets/sprites/tanks/enemy2_anim1.png"
     sprite2 = "assets/sprites/tanks/enemy2_anim2.png"
-    strategy = strategies.EnemyStrategy
+    strategy = strategies.EnemyHardStrategy
     shoot_delay = 4/3 * constants.FPS
 
     def __init__(self, pos, expl_group = None):
