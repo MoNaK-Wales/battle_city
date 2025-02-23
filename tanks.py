@@ -6,6 +6,7 @@ from itertools import cycle
 from abc import ABC, abstractmethod
 from set_sprites import Entity
 from logger import logger
+from collide_manager import CollideManager
 from sounds_manager import SoundsManager
 from anims import Explosion, SpawnAnim
 
@@ -77,16 +78,39 @@ class Enemy(Tank, ABC):
     def __init__(self, pos, src, strategy, speed, bullet_speed, anim_sprite, expl_group = None):
         super().__init__(pos, src, strategy, speed, bullet_speed, anim_sprite, expl_group)
 
+        # при спавне враг будет считаться находящимся внутри игрока, и только после выхода из него (может сразу при спавне) 
+        # флаг отключается и может проверяться коллизия
+        self.is_overlap_player = True
+
     @abstractmethod
     def shoot(self):
         pass
 
     def update(self, entities, obstacles, hud):
+        if self.is_overlap_player:
+            hero = self.find_hero(entities)
+            if hero is None:
+                self.is_overlap_player = False
+            else:
+                self.check_player_overlapping(hero)
+
         entities.remove(self)
         self.move(obstacles, entities, hud)
         self.rect.center = self.pos
 
         SoundsManager.enemy_running(True)
+
+    def check_player_overlapping(self, hero):
+        if not self.rect.colliderect(hero.rect):
+            self.is_overlap_player = False
+
+    def find_hero(self, entities):
+        hero = None
+        for entity in entities:
+            if isinstance(entity, Hero):
+                hero = entity
+                break
+        return hero
 
     def kill(self):
         super().kill()

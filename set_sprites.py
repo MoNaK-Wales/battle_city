@@ -40,6 +40,9 @@ class Entity(GameSprite):
 
         self.original_image = self.image.copy()
 
+        #только у Enemy этот флаг True, добавлен сюда во избежание ошибок
+        self.is_overlap_player = False 
+
     def move(self, obstacles, entities, hud):
         self.strategy.move(obstacles, entities, hud)
 

@@ -34,6 +34,9 @@ class Move_Strategy(ABC):
         new_pos = self.entity.pos + self.directions[direction_name]
 
         future_entity = self.entity.__class__(new_pos)
+        if future_entity.__class__.__name__.endswith("Enemy"):
+            future_entity.is_overlap_player = self.entity.is_overlap_player
+
         collides = [
             CollideManager.checkCollide(future_entity, obstacle)
             for obstacle in obstacles

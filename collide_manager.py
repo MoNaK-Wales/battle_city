@@ -37,6 +37,9 @@ class CollideManager:
                 f"checkCollideEntities takes 2 Entity objects, but {type(entity1)} and {type(entity2)} are given"
             )
             raise TypeError("Both args must be Entity")
+        
+        if entity1.is_overlap_player or entity2.is_overlap_player:
+            return False # если враг находиться внутри игрока, коллизия не проверяется
 
         collide = entity1.rect.colliderect(entity2)
         if collide and (isinstance(entity1, Bullet) or isinstance(entity2, Bullet)):
