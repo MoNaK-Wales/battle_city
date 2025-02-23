@@ -11,32 +11,33 @@ from explosion import Explosion
 
 
 class Tank(Entity):
+    scale = constants.TANK_SCALE * constants.SC_SCALE
+
     def __init__(self, pos, src, strategy, speed, bullet_speed, anim_sprite, expl_group):
         super().__init__(pos, src, strategy, speed)
 
-        self.image = pygame.transform.scale_by(
-            pygame.image.load(src), constants.TANK_SCALE * constants.SC_SCALE
-        ).convert_alpha()
+        self.image = pygame.transform.scale_by(pygame.image.load(src), self.scale).convert_alpha()
         self.rect = self.image.get_rect(center=self.pos)
 
         self.bullet_speed = bullet_speed
 
         self.anims_iter = cycle([src, anim_sprite])
+        self.delay = 0.06
         self.lastanim = 0
 
         self.expl_group = expl_group
 
-    # def anim(self):
-    #     if time() - self.lastanim > 0.1:
-    #         self.image = pygame.transform.rotate(pygame.transform.scale_by(
-    #             pygame.image.load(next(self.anims_iter)), constants.TANK_SCALE * constants.SC_SCALE
-    #         ), self.angle)
-    #         self.lastanim = time()
+    def anim(self):
+        if time() - self.lastanim > self.delay:
+            next_img = next(self.anims_iter)
+            self.original_image = pygame.transform.scale_by(pygame.image.load(next_img), self.scale).convert_alpha()
+            self.rotate(self.angle)
+            self.lastanim = time()
 
     def kill(self):
         super().kill()
         Explosion(self.pos, "big", self.expl_group)
-        
+
 
 class Hero(Tank):
     def __init__(self, pos, hp=3, expl_group = None):
@@ -64,7 +65,6 @@ class Hero(Tank):
         initial_pos = self.pos.copy()
         can_create_bullet = self.strategy.move(obstacles, entities, hud)
 
-        # self.anim()
         SoundsManager.hero_running(self.pos, initial_pos)
         return can_create_bullet, self.bullet_pos[self.angle]
 
@@ -82,9 +82,6 @@ class Enemy(Tank, ABC):
         self.move(obstacles, entities, hud)
         self.rect.center = self.pos
 
-        # self.anim()
-
-        is_have_enemies = any(isinstance(entity, Enemy) for entity in entities)
         SoundsManager.enemy_running(True)
 
     def kill(self):

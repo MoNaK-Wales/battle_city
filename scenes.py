@@ -166,7 +166,7 @@ class Stage(SceneBase):
         level_obstacles, spawnpoint, base_pos, enemy_spawns = self.level_manager.load()
 
         self.hero = tanks.Hero(spawnpoint, 3, self.explosions_group)
-        self.base = Base(base_pos, self)
+        self.base = Base(base_pos, self, self.explosions_group)
 
         self.obstacles_group = AddableGroup(level_obstacles)
         self.obstacles_group.add(self.base)

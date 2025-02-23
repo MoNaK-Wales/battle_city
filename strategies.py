@@ -66,12 +66,16 @@ class Controll_Strategy(Move_Strategy):
         # рух гравця по клавішам
         if keys[pygame.K_w] or keys[pygame.K_UP]:
             self.move_entity("up", obstacles, enemies, hud)
+            self.entity.anim()
         elif keys[pygame.K_s] or keys[pygame.K_DOWN]:
             self.move_entity("down", obstacles, enemies, hud)
+            self.entity.anim()
         elif keys[pygame.K_a] or keys[pygame.K_LEFT]:
             self.move_entity("left", obstacles, enemies, hud)
+            self.entity.anim()
         elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             self.move_entity("right", obstacles, enemies, hud)
+            self.entity.anim()
 
         # стрільба
         if (
@@ -94,6 +98,7 @@ class Enemy_Strategy(Move_Strategy):
 
     def move(self, obstacles, entities, hud):
         self.move_entity(self.random_direction, obstacles, entities, hud)
+        self.entity.anim()
         if self.move_timer >= self.move_delay:
             self.random_direction = random.choice(["up", "down", "left", "right"])
             self.move_timer = 0
