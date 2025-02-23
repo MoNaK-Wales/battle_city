@@ -54,16 +54,6 @@ class Move_Strategy(ABC):
 
 
 class Controll_Strategy(Move_Strategy):
-    def __init__(self, entity):
-        super().__init__(entity)
-        self.last_shot = 0
-        self.bullet_pos = {
-            0: (0, -TILE_SIZE),
-            90: (TILE_SIZE, 0),
-            180: (0, TILE_SIZE),
-            270: (-TILE_SIZE, 0),
-        }
-
     def move(self, obstacles, enemies, hud):
         keys = pygame.key.get_pressed()
 
@@ -76,18 +66,23 @@ class Controll_Strategy(Move_Strategy):
         # рух гравця по клавішам
         if keys[pygame.K_w] or keys[pygame.K_UP]:
             self.move_entity("up", obstacles, enemies, hud)
+            self.entity.anim()
         elif keys[pygame.K_s] or keys[pygame.K_DOWN]:
             self.move_entity("down", obstacles, enemies, hud)
+            self.entity.anim()
         elif keys[pygame.K_a] or keys[pygame.K_LEFT]:
             self.move_entity("left", obstacles, enemies, hud)
+            self.entity.anim()
         elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             self.move_entity("right", obstacles, enemies, hud)
+            self.entity.anim()
 
         # стрільба
-        if (keys[pygame.MOUSEBUTTONDOWN] or keys[pygame.K_x]) and time() - self.last_shot > 0.85:
-            bullet = Bullet(pygame.Vector2(self.entity.rect.center) + pygame.Vector2(self.bullet_pos[self.entity.angle]), self.entity.angle, 2)
-            self.last_shot = time()
-            return bullet
+        if (
+            keys[pygame.MOUSEBUTTONDOWN] or keys[pygame.K_x]
+        ) and time() - self.entity.last_shot > 0.85:
+            self.entity.last_shot = time()
+            return True
 
         return None
 
@@ -103,6 +98,7 @@ class Enemy_Strategy(Move_Strategy):
 
     def move(self, obstacles, entities, hud):
         self.move_entity(self.random_direction, obstacles, entities, hud)
+        self.entity.anim()
         if self.move_timer >= self.move_delay:
             self.random_direction = random.choice(["up", "down", "left", "right"])
             self.move_timer = 0
@@ -115,7 +111,7 @@ class Bullet_strategy(Move_Strategy):
     def move_entity(self, direction_name, obstacles, entities, hud):
         new_pos = self.entity.pos + self.directions[direction_name]
 
-        future_bullet = Bullet(new_pos, self.entity.angle_dict[direction_name][0], False)
+        future_bullet = Bullet(new_pos, self.entity.angle_dict[direction_name][0])
         collides = [
             CollideManager.checkCollide(future_bullet, obstacle)
             for obstacle in obstacles

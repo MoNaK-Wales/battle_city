@@ -1,10 +1,11 @@
 import pygame
 import constants
-# import bullet
-from abc import ABC, abstractmethod
 from logger import logger
+from explosion import Explosion
+from sounds_manager import SoundsManager
 
-class Game_Sprite(pygame.sprite.Sprite):
+
+class GameSprite(pygame.sprite.Sprite):
     def __init__(self, pos, src):
         super().__init__()
 
@@ -18,7 +19,7 @@ class Game_Sprite(pygame.sprite.Sprite):
         self.rect.center = self.pos
 
 
-class Entity(Game_Sprite):
+class Entity(GameSprite):
     def __init__(self, pos, src, strategy, speed):
         super().__init__(pos, src)
 
@@ -36,7 +37,8 @@ class Entity(Game_Sprite):
             180: (180, True),
             270: (270, True),
         }
-        self.is_mirrored = False  # при нижнем и правом положении спрайт отзеркален
+
+        self.original_image = self.image.copy()
 
     def move(self, obstacles, entities, hud):
         self.strategy.move(obstacles, entities, hud)
@@ -44,24 +46,22 @@ class Entity(Game_Sprite):
     def rotate(self, angle):
         logger.debug(f"Rotating {angle} {self}")
         target_angle, target_mirror = self.angle_dict[angle]
-        delta_angle = target_angle - self.angle
         self.angle = target_angle
-        logger.debug(f"Target angle - {target_angle}; delta - {delta_angle}")
 
-        self.image = pygame.transform.rotate(self.image, -delta_angle)
+        rotated_image = pygame.transform.rotate(self.original_image, -target_angle)
+
+        if target_mirror:
+            logger.debug("Sprite must be mirrored")
+            if target_angle in (0, 180):
+                rotated_image = pygame.transform.flip(rotated_image, True, False)
+            elif target_angle in (90, 270):
+                rotated_image = pygame.transform.flip(rotated_image, False, True)
+
+        self.image = rotated_image
         self.rect = self.image.get_rect(center=self.rect.center)
 
-        if self.is_mirrored != target_mirror:
-            logger.debug("Sprite must be mirrored")
-            if target_angle == 180 or target_angle == 0:
-                self.image = pygame.transform.flip(self.image, True, False)
-            elif target_angle == 270 or target_angle == 90:
-                self.image = pygame.transform.flip(self.image, False, True)
 
-            self.is_mirrored = target_mirror
-
-
-class Obstacle(Game_Sprite):
+class Obstacle(GameSprite):
     def __init__(self, pos, src):
         super().__init__(pos, src)
         logger.debug(f"Created {type(self)} obstacle on {pos}")
@@ -84,18 +84,23 @@ class Foliage(Obstacle):
         super().__init__(pos, "assets/blocks/foliage.png")
 
 class Base(Obstacle):
-    def __init__(self, pos, stage_scene):
+
+    def __init__(self, pos, stage_scene, expl_group):
         super().__init__(pos, "assets/blocks/base.png")
         self.dead_image = pygame.transform.scale_by(
             pygame.image.load("assets/blocks/base_gm_over.png"), constants.SC_SCALE
         ).convert_alpha()
         self.stage_scene = stage_scene
+        self.expl_group = expl_group
 
     def destroy(self):
         logger.info("Base destroyed")
         self.image = self.dead_image
         self.rect = self.image.get_rect(center=self.pos)
         self.update()
+
+        Explosion(self.pos, "big", self.expl_group)
+        SoundsManager.player_destroyed()
         self.stage_scene.game_over()
 
 

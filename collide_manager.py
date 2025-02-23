@@ -2,6 +2,7 @@ import pygame
 from logger import logger
 from bullet import Bullet
 from set_sprites import Entity, Obstacle, Wall, Brick, Foliage, Base
+from sounds_manager import SoundsManager
 
 
 class CollideManager:
@@ -17,7 +18,10 @@ class CollideManager:
             collide = entity.rect.colliderect(obstacle)
             if isinstance(entity, Bullet) and collide:
                 if isinstance(obstacle, (Brick, Base)):
+                    SoundsManager.bullet_bricks()
                     obstacle.destroy()
+                if isinstance(obstacle, (Wall, pygame.Rect)):
+                    SoundsManager.bullet_wall()
                 entity.kill()
             return collide
         elif isinstance(obstacle, Foliage):
