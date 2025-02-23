@@ -161,6 +161,18 @@ class Stage(SceneBase):
         self.animations_group = AddableGroup()
 
         self.end_delay = 5
+        self.last_kill_time = None
+
+        self.pause = False
+        self.pause_image = pygame.transform.scale_by(
+            pygame.image.load("assets/misc/pause.png").convert_alpha(), SC_SCALE
+        )
+        self.pause_rect = self.pause_image.get_rect(
+            center=((SC_X_OBJ - HUD_WIDTH) / 2, SC_Y_OBJ / 2 + 7 * SC_SCALE)
+        )
+        self.pause_blink_delay = 0.5
+        self.pause_show = True
+        self.last_pause_show = 0
 
     def setup(self):
         logger.info("Stage setup")
@@ -197,6 +209,9 @@ class Stage(SceneBase):
         logger.debug(f"Starting obstacles (HUD): {self.hud}")
 
     def update(self):
+        if self.pause:
+            return
+
         can_create_bullet, bullet_pos = self.hero.move(
             self.obstacles_group, self.enemies_group, self.hud
         )
@@ -257,8 +272,20 @@ class Stage(SceneBase):
         for rect in self.enemies_count_rects:
             self.screen.blit(self.enemies_count_image, rect)
 
+        if self.pause:
+            if self.pause_show:
+                    self.screen.blit(self.pause_image, self.pause_rect)
+            if time.time() - self.last_pause_show > self.pause_blink_delay:
+                self.last_pause_show = time.time()
+                self.pause_show = not self.pause_show
+
     def handle_event(self, event):
-        pass
+        if event.type == pygame.KEYDOWN:
+            if pygame.key.get_pressed()[pygame.K_RETURN] or pygame.key.get_pressed()[pygame.K_ESCAPE]:
+                logger.info("Pause")
+                self.pause = not self.pause
+                SoundsManager.pause(self.pause)
+                SoundsManager.pause_play()
 
     def cleanup(self):
         logger.info("Stage cleanup")
@@ -278,8 +305,10 @@ class Stage(SceneBase):
 
     def check_level_end(self):
         if self.enemy_spawn_count == 0 and len(self.enemies_group) == 0:
-            self.last_check = time.time()
-            if time.time() - self.last_check > self.end_delay:
+            if self.last_kill_time is None:
+                self.last_kill_time = time.time()
+
+            if time.time() - self.last_kill_time > self.end_delay:
                 if path.isfile("assets/stages/stage" + str(self.level + 1)):
                     logger.info(f"Loading {self.level + 1} stage")
                     next_scene = StageLoader(self.screen, self.scene_manager, self.level + 1)
@@ -317,6 +346,8 @@ class StageLoader(SceneBase):
         self.screen.fill(self.background_color)
         self.screen.blit(self.stage_text, self.stage_text_rect)
         pygame.display.flip()
+        SoundsManager.pause(True)
+        SoundsManager.pause(False)
         SoundsManager.startlevel()
         time.sleep(3)
         next_scene = Stage(self.screen, self.scene_manager, self.level)
