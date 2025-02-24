@@ -103,7 +103,7 @@ class EnemyStrategy(MoveStrategy):
         super().__init__(entity, obstacles, entities, hud, bullets, anims)
 
         self.move_timer = -1  # Счётчик кадров
-        self.move_delay = FPS * 0.2
+        self.move_delay = FPS * 0.3
         self.shoot_delay = entity.shoot_delay * 1.3
         self.direction_keys = list(self.directions.keys())
         self.random_direction = random.choice(self.direction_keys)
@@ -144,10 +144,12 @@ class EnemyStrategy(MoveStrategy):
         return pos
     
     def to_base_pos(self):
-        baseX = 116 * SC_SCALE
+        baseX, baseY = 116 * SC_SCALE, 212 * SC_SCALE
         self.x, self.y = self.entity.pos
 
-        if self.x > baseX:
+        if self.y < baseY and random.randint(1, 5) != 5:
+            pos = "down"
+        elif self.x > baseX:
             pos = "left"
         elif self.x < baseX:
             pos = "right"

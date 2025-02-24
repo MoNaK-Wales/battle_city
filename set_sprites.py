@@ -23,7 +23,8 @@ class Entity(GameSprite):
     def __init__(self, pos, src, strategy, speed):
         super().__init__(pos, src)
 
-        self.speed = constants.SPEED * speed * constants.SC_SCALE
+        coef = (speed + 1) / 2  # с помощью этого коэффициента из 1 получается 1, из 2 получается 1.5, а из 3 - 2 ()
+        self.speed = constants.SPEED * coef * constants.SC_SCALE
         self.strategy = strategy(self, None, None, None, None, None)
 
         self.angle = 0
