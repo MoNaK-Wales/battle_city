@@ -40,15 +40,24 @@ class Entity(GameSprite):
 
         self.original_image = self.image.copy()
 
-        #только у Enemy этот флаг True, добавлен сюда во избежание ошибок
-        self.is_overlap_player = False 
+        # при спавне существо будет считаться находящимся внутри игрока, и только после выхода из него (может сразу при спавне) 
+        # флаг отключается и может проверяться коллизия
+        self.is_overlap_entity = True
 
     def update(self, **kwargs):
+        # если существо есть в группе существ, надо его удалить
+        entities = kwargs["entities"].copy()
+        if entities.has(self):
+            entities.remove(self)
+
         self.strategy.obstacles = kwargs["obstacles"]
-        self.strategy.entities = kwargs["entities"]
+        self.strategy.entities = entities
         self.strategy.hud = kwargs["hud"]
         self.strategy.bullets = kwargs["bullets"]
         self.strategy.anims = kwargs["anims"]
+
+        if self.is_overlap_entity:
+            self.check_entity_overlapping(entities)
 
     def move(self):
         self.strategy.move()
@@ -69,6 +78,14 @@ class Entity(GameSprite):
 
         self.image = rotated_image
         self.rect = self.image.get_rect(center=self.rect.center)
+
+    def check_entity_overlapping(self, entities):
+        collides = []
+        for entity in entities:
+            collides.append(not self.rect.colliderect(entity.rect))
+
+        if all(collides):
+            self.is_overlap_entity = False   
 
 
 class Obstacle(GameSprite):

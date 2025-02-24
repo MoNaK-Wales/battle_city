@@ -47,8 +47,7 @@ class MoveStrategy(ABC):
         new_pos = self.entity.pos + self.directions[direction_name]
 
         future_entity = self.entity.__class__(new_pos)
-        if future_entity.__class__.__name__.endswith("Enemy"):
-            future_entity.is_overlap_player = self.entity.is_overlap_player
+        future_entity.is_overlap_entity = self.entity.is_overlap_entity
 
         collides = [
             CollideManager.checkCollide(future_entity, obstacle)
@@ -104,7 +103,7 @@ class EnemyStrategy(MoveStrategy):
         super().__init__(entity, obstacles, entities, hud, bullets, anims)
 
         self.move_timer = -1  # Счётчик кадров
-        self.move_delay = FPS * 0.5
+        self.move_delay = FPS * 0.2
         self.shoot_delay = entity.shoot_delay * 1.3
         self.direction_keys = list(self.directions.keys())
         self.random_direction = random.choice(self.direction_keys)

@@ -62,7 +62,7 @@ class Hero(Tank):
         initial_pos = self.pos.copy()
 
         super().update(**kwargs)
-        self.strategy.move()
+        self.move()
         self.rect.center = self.pos
 
         SoundsManager.hero_running(self.pos, initial_pos)
@@ -78,35 +78,17 @@ class Enemy(Tank, ABC):
 
         self.shoot_delay = shoot_delay
 
-        # при спавне враг будет считаться находящимся внутри игрока, и только после выхода из него (может сразу при спавне) 
-        # флаг отключается и может проверяться коллизия
-        self.is_overlap_player = True
-
     @abstractmethod
     def shoot(self):
         pass
 
     def update(self, **kwargs):
-        if self.is_overlap_player:
-            hero = self.find_hero(kwargs["entities"])
-            if hero is None:
-                self.is_overlap_player = False
-            else:
-                self.check_player_overlapping(hero)
+        super().update(**kwargs)
 
-        entities_copy = kwargs["entities"].copy()
-        entities_copy.remove(self)
-        new_kwargs = kwargs.copy()
-        new_kwargs.update(entities=entities_copy)
-        super().update(**new_kwargs)
         self.move()
         self.rect.center = self.pos
 
-        SoundsManager.enemy_running(True)
-
-    def check_player_overlapping(self, hero):
-        if not self.rect.colliderect(hero.rect):
-            self.is_overlap_player = False
+        SoundsManager.enemy_running(True)     
 
     def find_hero(self, entities):
         hero = None

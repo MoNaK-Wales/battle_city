@@ -16,6 +16,7 @@ class Bullet(Entity):
         self.direction = direction
         self.of_enemy = of_enemy
         self.is_real = is_real
+        self.is_overlap_entity = False  # пуле проверка при спавне не нужна
         if is_real:
             self.add(bullets_group)
             self.rotate(self.direction)

@@ -147,7 +147,7 @@ class Stage(SceneBase):
         )
 
         self.hp_font = pygame.font.Font(NES_FONT, SMALL_FONT_SIZE * SC_SCALE)
-        self.hp_label = self.hp_font.render("Æ P", False, BLACK, GREY)
+        self.hp_label = self.hp_font.render("HP", False, BLACK, GREY)
         self.hp_label_rect = self.hp_label.get_rect(center=(SC_X_OBJ - 16 * SC_SCALE, 140 * SC_SCALE))
         self.hp_icon = pygame.transform.scale_by(pygame.image.load("assets/misc/HUD/lifes.png"), SC_SCALE)
         self.hp_icon_rect = self.hp_icon.get_rect(center=(SC_X_OBJ - 21 * SC_SCALE, 148 * SC_SCALE))

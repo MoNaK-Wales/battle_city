@@ -38,8 +38,8 @@ class CollideManager:
             )
             raise TypeError("Both args must be Entity")
         
-        if entity1.is_overlap_player or entity2.is_overlap_player:
-            return False # если враг находиться внутри игрока, коллизия не проверяется
+        if entity1.is_overlap_entity or entity2.is_overlap_entity:
+            return False # если существо находиться внутри другого существа, коллизия не проверяется
 
         collide = entity1.rect.colliderect(entity2) 
         if collide:
