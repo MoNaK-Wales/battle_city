@@ -1,13 +1,14 @@
 import pygame
-import strategies
 import constants
-from time import time
+import time
 from itertools import cycle
 from abc import ABC, abstractmethod
-from set_sprites import Entity
-from logger import logger
-from sounds_manager import SoundsManager
-from anims import Explosion, SpawnAnim
+from sprites.anims import Explosion, SpawnAnim
+from sprites.set_sprites import Entity
+from managers.logger import logger
+from managers.sounds_manager import SoundsManager
+from strategies.player_strategy import ControllStrategy
+from strategies.enemy_strategy import EnemyEasyStrategy, EnemyNormalStrategy, EnemyHardStrategy
 
 
 class Tank(Entity):
@@ -31,11 +32,11 @@ class Tank(Entity):
         super().update(**kwargs)
 
     def anim(self):
-        if time() - self.lastanim > self.delay:
+        if time.time() - self.lastanim > self.delay:
             next_img = next(self.anims_iter)
             self.original_image = pygame.transform.scale_by(pygame.image.load(next_img), self.scale).convert_alpha()
             self.rotate(self.angle)
-            self.lastanim = time()
+            self.lastanim = time.time()
 
     def kill(self):
         super().kill()
@@ -45,7 +46,7 @@ class Tank(Entity):
 class Hero(Tank):
     sprite1 = "assets/sprites/tanks/hero_anim1.png"
     sprite2 = "assets/sprites/tanks/hero_anim2.png"
-    strategy = strategies.ControllStrategy
+    strategy = ControllStrategy
 
     def __init__(self, pos, hp=3, expl_group = None):
         super().__init__(pos, self.sprite1, self.sprite2, self.strategy, 2, 2, expl_group)
@@ -106,7 +107,7 @@ class Enemy(Tank, ABC):
 class SimpleEnemy(Enemy):
     sprite1 = "assets/sprites/tanks/enemy1_anim1.png"
     sprite2 = "assets/sprites/tanks/enemy1_anim2.png"
-    strategy = strategies.EnemyEasyStrategy
+    strategy = EnemyEasyStrategy
     shoot_delay = 4/3 * constants.FPS
 
     def __init__(self, pos, expl_group = None):
@@ -118,7 +119,7 @@ class SimpleEnemy(Enemy):
 class FastEnemy(Enemy):
     sprite1 = "assets/sprites/tanks/enemy2_anim1.png"
     sprite2 = "assets/sprites/tanks/enemy2_anim2.png"
-    strategy = strategies.EnemyHardStrategy
+    strategy = EnemyHardStrategy
     shoot_delay = 4/3 * constants.FPS
 
     def __init__(self, pos, expl_group = None):

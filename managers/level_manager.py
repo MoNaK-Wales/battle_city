@@ -1,7 +1,8 @@
 import pygame
 from os import path
 from constants import *
-from set_sprites import *
+from sprites.set_sprites import *
+from sprites.obstacles import *
 
 
 class LevelLoader:

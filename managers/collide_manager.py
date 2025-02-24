@@ -1,8 +1,9 @@
 import pygame
-from logger import logger
-from bullet import Bullet
-from set_sprites import Entity, Obstacle, Wall, Brick, Foliage, Base
-from sounds_manager import SoundsManager
+from sprites.bullet import Bullet
+from sprites.set_sprites import Entity
+from sprites.obstacles import *
+from managers.logger import logger
+from managers.sounds_manager import SoundsManager
 
 
 class CollideManager:

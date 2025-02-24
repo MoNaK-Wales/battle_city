@@ -1,96 +1,17 @@
 import pygame
-import sys
-import level_manager
-import tanks
+import managers.level_manager as level_manager
+import sprites.tanks as tanks
 import time
 from itertools import cycle
 from os import path
-from abc import ABC, abstractmethod
 from constants import *
-from set_sprites import AddableGroup, Base
-from logger import logger
-from bullet import Bullet
-from strategies import NoMovement
-from sounds_manager import SoundsManager
-
-
-class SceneBase(ABC):
-
-    def __init__(self, screen, scene_manager):
-        self.screen = screen
-        self.scene_manager = scene_manager
-
-    @abstractmethod
-    def setup(self):  # перед загрузкой сцены
-        pass
-
-    @abstractmethod
-    def handle_event(self, event):
-        pass
-
-    @abstractmethod
-    def update(self):  # обробатывает данные каждый цикл
-        pass
-
-    @abstractmethod
-    def render(self):  # прорисовывает обновлённые данные каждый цикл
-        pass
-
-    @abstractmethod
-    def cleanup(self):  # перед переключением сцены на другую
-        pass
-
-
-class Menu(SceneBase):
-    def __init__(self, screen, scene_manager):
-        super().__init__(screen, scene_manager)
-
-        self.background_color = BLACK
-
-        self.menu_font = pygame.font.Font(NES_FONT, FONT_SIZE * SC_SCALE)
-        self.start_button = self.menu_font.render("START GAME", False, WHITE, BLACK)
-        self.start_button_rect = self.start_button.get_rect()
-        self.start_button_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ * 0.8)
-
-        self.logo = pygame.transform.scale_by(
-            pygame.image.load("assets/misc/logo.png").convert(), 0.35 * SC_SCALE
-        )
-        self.logo_rect = self.logo.get_rect()
-        self.logo_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ * 0.540)
-
-        self.tank_logo = pygame.transform.scale_by(
-            pygame.image.load("assets/misc/tank_logo.png").convert(), 0.14 * SC_SCALE
-        )
-        self.tank_logo_rect = self.tank_logo.get_rect()
-        self.tank_logo_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ * 0.2)
-
-    def setup(self):
-        logger.info("Menu setup")
-
-        self.screen.fill(self.background_color)
-        self.screen.blit(self.start_button, self.start_button_rect)
-        self.screen.blit(self.logo, self.logo_rect)
-        self.screen.blit(self.tank_logo, self.tank_logo_rect)
-
-    def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_x, mouse_y = event.pos
-            if self.start_button_rect.collidepoint(mouse_x, mouse_y):
-                logger.debug(f"LMB click on start button at {event.pos}")
-                self.scene_manager.switch_scene("StageLoader 1")
-        elif event.type == pygame.KEYDOWN:
-            if pygame.key.get_pressed()[pygame.K_RETURN]:  # enter
-                logger.debug(f"Starting game via enter")
-                self.scene_manager.switch_scene("StageLoader 1")
-
-    def render(self):
-        pass
-
-    def update(self):
-        pass
-
-    def cleanup(self):
-        logger.info("Menu cleanup")
+from scenes.base_scenes import SceneBase
+import scenes.stage_loader
+from sprites.set_sprites import AddableGroup
+from sprites.obstacles import Base
+from managers.logger import logger
+from strategies.base_strategy import NoMovement
+from managers.sounds_manager import SoundsManager
 
 
 class Stage(SceneBase):
@@ -300,12 +221,12 @@ class Stage(SceneBase):
             if time.time() - self.last_kill_time > self.end_delay:
                 if path.isfile("assets/stages/stage" + str(self.level + 1)):
                     logger.info(f"Loading {self.level + 1} stage")
-                    next_scene = StageLoader(self.screen, self.scene_manager, self.level + 1)
+                    next_scene = scenes.stage_loader.StageLoader(self.screen, self.scene_manager, self.level + 1)
                     self.scene_manager.add_scene(f"StageLoader {self.level + 1}", next_scene)
                     self.scene_manager.switch_scene(f"StageLoader {self.level + 1}")
                 else:
                     logger.warning(f"New Stage is not found, starting from 1")
-                    next_scene = StageLoader(self.screen, self.scene_manager, 1)
+                    next_scene = scenes.stage_loader.StageLoader(self.screen, self.scene_manager, 1)
                     self.scene_manager.add_scene(f"StageLoader 1", next_scene)
                     self.scene_manager.switch_scene(f"StageLoader 1")
 
@@ -314,82 +235,3 @@ class Stage(SceneBase):
         self.hero.strategy = NoMovement()
         self.gameover_timer = time.time()
         self.gameover = True
-
-
-class StageLoader(SceneBase):
-    def __init__(self, screen, scene_manager, level):
-        super().__init__(screen, scene_manager)
-
-        self.background_color = GREY
-        self.level = level
-
-        self.stage_font = pygame.font.Font(NES_FONT, FONT_SIZE * SC_SCALE)
-        self.stage_text = self.stage_font.render(
-            f"STAGE {self.level}", False, BLACK, GREY
-        )
-        self.stage_text_rect = self.stage_text.get_rect()
-        self.stage_text_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ / 2)
-
-    def setup(self):
-        logger.info("StageLoader setup")
-        self.screen.fill(self.background_color)
-        self.screen.blit(self.stage_text, self.stage_text_rect)
-        pygame.display.flip()
-        SoundsManager.pause(True)
-        SoundsManager.pause(False)
-        SoundsManager.startlevel()
-        time.sleep(3)
-        next_scene = Stage(self.screen, self.scene_manager, self.level)
-        self.scene_manager.add_scene(f"Stage {self.level}", next_scene)
-        self.scene_manager.switch_scene(f"Stage {self.level}")
-
-    def update(self):
-        pass
-
-    def render(self):
-        pass
-
-    def handle_event(self, event):
-        pass
-
-    def cleanup(self):
-        logger.info("StageLoader cleanup")
-
-
-class SceneManager:
-    def __init__(self, screen):
-        self.screen = screen
-        self.scenes = {}
-        self.current_scene = None
-
-    def add_scene(self, scene_name, scene):
-        if isinstance(scene, SceneBase):
-            self.scenes[scene_name] = scene
-            logger.info(f"{scene_name} scene added to SceneManager")
-
-    def switch_scene(self, scene_name):
-        logger.info(f"Switching from {self.current_scene} to {scene_name}")
-
-        if self.current_scene is not None:
-            self.current_scene.cleanup()
-
-        self.current_scene = self.scenes.get(scene_name)
-
-        if self.current_scene is not None:
-            logger.info(f"Successful switching")
-            self.current_scene.setup()
-        else:
-            logger.warning(f"Scenes dict doesn't include {scene_name} key")
-            print("Name is not found")
-
-    def run_current_scene(self):
-        if self.current_scene is not None:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    logger.info("Quitting the game")
-                    pygame.quit()
-                    sys.exit()
-                self.current_scene.handle_event(event)
-
-            self.current_scene.update()
-            self.current_scene.render()

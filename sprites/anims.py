@@ -1,7 +1,7 @@
 import pygame
 import time
 from constants import SC_SCALE, TANK_SCALE
-from logger import logger
+from managers.logger import logger
 
 
 class Explosion(pygame.sprite.Sprite):

@@ -1,7 +1,9 @@
 import pygame
-from scenes import *
 from constants import *
-from logger import logger
+from managers.logger import logger
+from scenes.menu import Menu
+from scenes.stage_loader import StageLoader
+from scenes.base_scenes import SceneManager
 
 
 def run_game():
