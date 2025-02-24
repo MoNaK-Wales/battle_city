@@ -147,7 +147,7 @@ class Stage(SceneBase):
         )
 
         self.hp_font = pygame.font.Font(NES_FONT, SMALL_FONT_SIZE * SC_SCALE)
-        self.hp_label = self.hp_font.render("ÆP", False, BLACK, GREY)
+        self.hp_label = self.hp_font.render("HP", False, BLACK, GREY)
         self.hp_label_rect = self.hp_label.get_rect(center=(SC_X_OBJ - 16 * SC_SCALE, 140 * SC_SCALE))
         self.hp_icon = pygame.transform.scale_by(pygame.image.load("assets/misc/HUD/lifes.png"), SC_SCALE)
         self.hp_icon_rect = self.hp_icon.get_rect(center=(SC_X_OBJ - 21 * SC_SCALE, 148 * SC_SCALE))
@@ -211,32 +211,21 @@ class Stage(SceneBase):
     def update(self):
         if self.pause:
             return
-
-        can_create_bullet, bullet_pos = self.hero.move(
-            self.obstacles_group, self.enemies_group, self.hud
-        )
-        if can_create_bullet is not None:
-            bullet = Bullet(
-                pygame.Vector2(self.hero.rect.center) + pygame.Vector2(bullet_pos),
-                self.hero.angle,
-                True,
-                self.animations_group,
-                2,
-            )
-            self.bullets.add(bullet)
+        
+        kwargs = {
+            "obstacles": self.obstacles_group,
+            "entities": self.hero_group + self.enemies_group,
+            "hud": self.hud,
+            "bullets": self.bullets,
+            "anims": self.animations_group,
+        }
+        hero_kwargs = kwargs.copy()
+        hero_kwargs.update(entities=self.enemies_group)
 
         self.spawn_enemy()
-        self.hero_group.update()
-        self.enemies_group.update(
-            obstacles=self.obstacles_group,
-            entities=(self.hero_group + self.enemies_group),
-            hud=self.hud,
-        )
-        self.bullets.update(
-            obstacles=self.obstacles_group,
-            entities=(self.hero_group + self.enemies_group),
-            hud=self.hud,
-        )
+        self.hero_group.update(**hero_kwargs)
+        self.enemies_group.update(**kwargs)
+        self.bullets.update(**kwargs)
         self.animations_group.update()
 
         self.enemies_count_rects = self.enemies_count_rects[: self.enemy_spawn_count]
@@ -322,7 +311,7 @@ class Stage(SceneBase):
 
     def game_over(self):
         logger.info("Game Over")
-        self.hero.strategy = NoMovement(self.hero)
+        self.hero.strategy = NoMovement()
         self.gameover_timer = time.time()
         self.gameover = True
 

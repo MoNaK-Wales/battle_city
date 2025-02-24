@@ -23,8 +23,9 @@ class Entity(GameSprite):
     def __init__(self, pos, src, strategy, speed):
         super().__init__(pos, src)
 
-        self.speed = constants.SPEED * speed * constants.SC_SCALE
-        self.strategy = strategy(self)
+        coef = (speed + 1) / 2  # с помощью этого коэффициента из 1 получается 1, из 2 получается 1.5, а из 3 - 2 ()
+        self.speed = constants.SPEED * coef * constants.SC_SCALE
+        self.strategy = strategy(self, None, None, None, None, None)
 
         self.angle = 0
         self.angle_dict = {
@@ -40,11 +41,27 @@ class Entity(GameSprite):
 
         self.original_image = self.image.copy()
 
-        #только у Enemy этот флаг True, добавлен сюда во избежание ошибок
-        self.is_overlap_player = False 
+        # при спавне существо будет считаться находящимся внутри игрока, и только после выхода из него (может сразу при спавне) 
+        # флаг отключается и может проверяться коллизия
+        self.is_overlap_entity = True
 
-    def move(self, obstacles, entities, hud):
-        self.strategy.move(obstacles, entities, hud)
+    def update(self, **kwargs):
+        # если существо есть в группе существ, надо его удалить
+        entities = kwargs["entities"].copy()
+        if entities.has(self):
+            entities.remove(self)
+
+        self.strategy.obstacles = kwargs["obstacles"]
+        self.strategy.entities = entities
+        self.strategy.hud = kwargs["hud"]
+        self.strategy.bullets = kwargs["bullets"]
+        self.strategy.anims = kwargs["anims"]
+
+        if self.is_overlap_entity:
+            self.check_entity_overlapping(entities)
+
+    def move(self):
+        self.strategy.move()
 
     def rotate(self, angle):
         logger.debug(f"Rotating {angle} {self}")
@@ -62,6 +79,14 @@ class Entity(GameSprite):
 
         self.image = rotated_image
         self.rect = self.image.get_rect(center=self.rect.center)
+
+    def check_entity_overlapping(self, entities):
+        collides = []
+        for entity in entities:
+            collides.append(not self.rect.colliderect(entity.rect))
+
+        if all(collides):
+            self.is_overlap_entity = False   
 
 
 class Obstacle(GameSprite):
