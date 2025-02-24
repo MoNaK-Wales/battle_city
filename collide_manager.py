@@ -44,13 +44,13 @@ class CollideManager:
         collide = entity1.rect.colliderect(entity2) 
         if collide:
             if isinstance(entity1, Bullet):
-                if entity2.__class__.__name__.endswith("Enemy") and entity1.of_enemy:
+                if (entity2.__class__.__name__.endswith("Enemy") and entity1.of_enemy) or (entity2.__class__.__name__ == "Hero" and not entity1.of_enemy):
                     return False
                 else:
                     entity1.kill()
                     entity2.kill()
             elif isinstance(entity2, Bullet):
-                if entity1.__class__.__name__.endswith("Enemy") and entity2.of_enemy:
+                if (entity1.__class__.__name__.endswith("Enemy") and entity2.of_enemy) or (entity1.__class__.__name__ == "Hero" and not entity2.of_enemy):
                     return False
                 else:
                     entity1.kill()
