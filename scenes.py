@@ -161,7 +161,7 @@ class Stage(SceneBase):
         
         self.animations_group = AddableGroup()
 
-        self.end_delay = 5
+        self.end_delay = GAMEOVER_TIME
         self.last_kill_time = None
 
         self.pause = False
@@ -199,7 +199,7 @@ class Stage(SceneBase):
             tanks.EnemyFactory(enemy_spawns[0], self.animations_group, enemy_types[0]),
         ]
         self.factories_iter = cycle(enemy_factories)
-        self.enemy_spawn_count = 20
+        self.enemy_spawn_count = DEBUG_ENEMIES_AMOUNT #20
         
         # фабрика героя будет передаваться между уровнями и хранить в ней героя (если его не будет, то создавать)
         # на первый уровень фабрики ещё не существует, а в следующих будут обновляться её атрибуты
@@ -207,7 +207,9 @@ class Stage(SceneBase):
             self.hero_factory = tanks.HeroFactory(spawnpoint, self.animations_group, self.hero_group, self.game_over) 
         elif isinstance(self.hero_factory, tanks.HeroFactory):
             self.hero_factory.spawnpoint = spawnpoint
-            self.hero_factory.anims_group
+            self.hero_factory.hero.pos = spawnpoint
+            self.hero_factory.anims_group = self.animations_group
+            self.hero_factory.hero.expl_group = self.animations_group
             self.hero_factory.hero_group = self.hero_group
             self.hero_factory.gameover_func = self.game_over
         else:
@@ -277,7 +279,7 @@ class Stage(SceneBase):
 
         if self.pause:
             if self.pause_show:
-                    self.screen.blit(self.pause_image, self.pause_rect)
+                self.screen.blit(self.pause_image, self.pause_rect)
             if time.time() - self.last_pause_show > self.pause_blink_delay:
                 self.last_pause_show = time.time()
                 self.pause_show = not self.pause_show

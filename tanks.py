@@ -46,7 +46,6 @@ class Hero(Tank):
     def __init__(self, pos, expl_group = None, factory = None):
         super().__init__(pos, self.sprite1, self.sprite2, self.strategy, 2, 2, expl_group)
 
-
         self.hp = 3
         self.factory = factory
         self.active_collectables = []
@@ -65,7 +64,7 @@ class Hero(Tank):
         SoundsManager.player_destroyed()
 
         self.hp -= 1
-        Explosion(self.pos, "big", self.expl_group, self.factory.spawn)
+        Explosion(self.pos, "big", self.expl_group, self.factory.spawn).update()
 
 
 class Enemy(Tank, ABC):
