@@ -2,6 +2,7 @@ import pygame
 from scenes import *
 from constants import *
 from logger import logger
+from score_manager import ScoreManager
 
 
 def run_game():
@@ -11,6 +12,8 @@ def run_game():
     pygame.display.set_caption("Battle City")
 
     clock = pygame.time.Clock()
+
+    ScoreManager.load_high_score()
 
     scene_manager = SceneManager(screen)
     menu = Menu(screen, scene_manager)

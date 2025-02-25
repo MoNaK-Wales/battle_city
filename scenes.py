@@ -67,6 +67,8 @@ class Menu(SceneBase):
     def setup(self):
         logger.info("Menu setup")
 
+        ScoreManager.save_high_score()
+
         score, score_rect = ScoreManager.render(WHITE)
 
         self.screen.fill(self.background_color)
@@ -94,6 +96,8 @@ class Menu(SceneBase):
 
     def cleanup(self):
         logger.info("Menu cleanup")
+
+        ScoreManager.clear_score()
 
 
 class Stage(SceneBase):
