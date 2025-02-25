@@ -69,7 +69,7 @@ class Menu(SceneBase):
 
         ScoreManager.save_high_score()
 
-        score, score_rect = ScoreManager.render(WHITE)
+        score, score_rect, score_plus, score_plus_rect = ScoreManager.render(WHITE)
 
         self.screen.fill(self.background_color)
         self.screen.blit(self.start_button, self.start_button_rect)
@@ -269,7 +269,7 @@ class Stage(SceneBase):
         self.check_level_end()
 
     def render(self):
-        score, score_rect = ScoreManager.render(BLACK)
+        score, score_rect, score_plus, score_plus_rect = ScoreManager.render(BLACK)
         self.screen.fill(self.background_color)
         self.screen.blit(self.top_hud, (0, 0))
         self.screen.blit(self.left_hud, (0, 0))
@@ -286,7 +286,8 @@ class Stage(SceneBase):
         self.screen.blit(self.stage_number_icon, self.stage_number_icon_rect)
         self.screen.blit(self.stage_number, self.stage_number_rect)
         self.screen.blit(self.gameover_image, self.gameover_rect)
-        self.screen.blit(score, score_rect)        
+        self.screen.blit(score, score_rect)
+        self.screen.blit(score_plus, score_plus_rect)
 
         for rect in self.enemies_count_rects:
             self.screen.blit(self.enemies_count_image, rect)
