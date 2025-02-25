@@ -255,6 +255,11 @@ class Stage(SceneBase):
 
         self.hp_number = self.hp_number_font.render(f"{self.hero_factory.hero.hp}", False, BLACK, GREY)
 
+        if ScoreManager.score // HP_UP_SCORE > ScoreManager.given_hp_up:
+            self.hero_factory.hero.hp += 1
+            ScoreManager.given_hp_up += 1
+            SoundsManager.hp_up()
+
         if self.gameover and self.gameover_rect.centery > SC_Y_OBJ / 2:
             self.gameover_rect.centery -= 1 * SC_SCALE
 
@@ -322,6 +327,8 @@ class Stage(SceneBase):
         if self.enemy_spawn_count == 0 and len(self.enemies_group) == 0:
             if self.last_kill_time is None:
                 self.last_kill_time = time.time()
+                ScoreManager.add("Level")
+            
 
             if time.time() - self.last_kill_time > self.end_delay:
                 if path.isfile("assets/stages/stage" + str(self.level + 1)):

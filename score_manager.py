@@ -13,12 +13,15 @@ class ScoreManager:
         "Power": 300,
         "Armor": 400,
         "Bonus": 500,
+        "Level": 1000,
     }
     font = pygame.font.Font(NES_FONT, MINI_FONT_SIZE * SC_SCALE)
     #  "I- 00000 HI- 00000"
 
     score = 0
     high_score = 0
+
+    given_hp_up = 0
 
     high_score_path = "saves/high score.dat"
 
@@ -40,6 +43,7 @@ class ScoreManager:
     @staticmethod
     def clear_score():
         ScoreManager.score = 0
+        ScoreManager.given_hp_up = 0
 
     @staticmethod
     def save_high_score():
