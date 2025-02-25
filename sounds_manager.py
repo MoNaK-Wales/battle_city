@@ -85,5 +85,7 @@ class SoundsManager:
             pygame.mixer.pause()
         else:
             pygame.mixer.unpause()
-            if SoundsManager.channel_enemy_paused:
-                SoundsManager.channel_enemy.pause()
+            SoundsManager.channel_enemy.pause()
+            SoundsManager.channel_enemy_paused = True
+            SoundsManager.channel_player.pause()
+            SoundsManager.channel_player_paused = True

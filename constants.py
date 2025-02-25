@@ -26,7 +26,7 @@ WHITE = (255, 255, 255)
 GREY = (99, 99, 99)
 NES_FONT = "assets/fonts/nes-font.ttf"
 
-GAMEOVER_TIME = 5
+GAMEOVER_TIME = 5 * FPS
 
 DEBUG_ENEMIES_AMOUNT = 20
 

@@ -162,7 +162,7 @@ class Stage(SceneBase):
         self.animations_group = AddableGroup()
 
         self.end_delay = GAMEOVER_TIME
-        self.last_kill_time = None
+        self.last_kill_timer = None
 
         self.pause = False
         self.pause_image = pygame.transform.scale_by(
@@ -251,8 +251,11 @@ class Stage(SceneBase):
         if self.gameover and self.gameover_rect.centery > SC_Y_OBJ / 2:
             self.gameover_rect.centery -= 1 * SC_SCALE
 
-        if self.gameover and time.time() - self.gameover_timer > self.end_delay:
-            self.scene_manager.switch_scene("Game over")
+        if self.gameover:
+            if self.gameover_timer > self.end_delay:
+                self.scene_manager.switch_scene("Game over")
+            else:
+                self.gameover_timer += 1
 
         self.check_level_end()
 
@@ -311,10 +314,10 @@ class Stage(SceneBase):
 
     def check_level_end(self):
         if self.enemy_spawn_count == 0 and len(self.enemies_group) == 0:
-            if self.last_kill_time is None:
-                self.last_kill_time = time.time()
+            if self.last_kill_timer is None:
+                self.last_kill_timer = 0
 
-            if time.time() - self.last_kill_time > self.end_delay:
+            if self.last_kill_timer > self.end_delay:
                 if path.isfile("assets/stages/stage" + str(self.level + 1)):
                     logger.info(f"Loading {self.level + 1} stage")
                     next_scene = StageLoader(self.screen, self.scene_manager, self.level + 1, self.hero_factory)
@@ -325,11 +328,12 @@ class Stage(SceneBase):
                     next_scene = StageLoader(self.screen, self.scene_manager, 1, self.hero_factory)
                     self.scene_manager.add_scene(f"StageLoader 1", next_scene)
                     self.scene_manager.switch_scene(f"StageLoader 1")
+            else:
+                self.last_kill_timer += 1
 
     def game_over(self):
         logger.info("Game Over")
         self.hero_factory.hero.strategy = NoMovement()
-        self.gameover_timer = time.time()
         self.gameover = True
 
 
