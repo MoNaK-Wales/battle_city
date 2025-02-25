@@ -251,7 +251,7 @@ class Stage(SceneBase):
         if self.gameover and self.gameover_rect.centery > SC_Y_OBJ / 2:
             self.gameover_rect.centery -= 1 * SC_SCALE
 
-        if self.gameover and time.time() - self.gameover_timer > 10:
+        if self.gameover and time.time() - self.gameover_timer > self.end_delay:
             self.scene_manager.switch_scene("Menu")
 
         self.check_level_end()
@@ -287,10 +287,11 @@ class Stage(SceneBase):
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
             if pygame.key.get_pressed()[pygame.K_RETURN] or pygame.key.get_pressed()[pygame.K_ESCAPE]:
-                logger.info("Pause")
-                self.pause = not self.pause
-                SoundsManager.pause(self.pause)
-                SoundsManager.pause_play()
+                if not self.gameover:
+                    logger.info("Pause")
+                    self.pause = not self.pause
+                    SoundsManager.pause(self.pause)
+                    SoundsManager.pause_play()
 
     def cleanup(self):
         logger.info("Stage cleanup")
