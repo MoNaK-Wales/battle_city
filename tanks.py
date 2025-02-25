@@ -37,19 +37,26 @@ class Tank(Entity):
             self.rotate(self.angle)
             self.lastanim = time()
 
+    def kill(self):
+        super().kill()
+        Explosion(self.pos, "big", self.expl_group)
+
 
 class Hero(Tank):
     sprite1 = "assets/sprites/tanks/hero_anim1.png"
     sprite2 = "assets/sprites/tanks/hero_anim2.png"
     strategy = strategies.ControllStrategy
 
-    def __init__(self, pos, expl_group = None, factory = None):
+    def __init__(self, pos, hp=3, expl_group = None):
         super().__init__(pos, self.sprite1, self.sprite2, self.strategy, 2, 2, expl_group)
 
-
-        self.hp = 3
-        self.factory = factory
+        self.hp = hp
         self.active_collectables = []
+        self.spawnpoint = pos
+
+    def change_spawnpoint(self, spawnpoint):
+        if isinstance(spawnpoint, pygame.Vector2):
+            self.spawnpoint = spawnpoint
 
     def update(self, **kwargs):
         initial_pos = self.pos.copy()
@@ -64,15 +71,16 @@ class Hero(Tank):
         super().kill()
         SoundsManager.player_destroyed()
 
-        self.hp -= 1
-        Explosion(self.pos, "big", self.expl_group, self.factory.spawn)
-
 
 class Enemy(Tank, ABC):
     def __init__(self, pos, src, anim_sprite, strategy, speed, bullet_speed, shoot_delay, expl_group = None):
         super().__init__(pos, src, anim_sprite, strategy, speed, bullet_speed, expl_group)
 
         self.shoot_delay = shoot_delay
+
+    @abstractmethod
+    def shoot(self):
+        pass
 
     def update(self, **kwargs):
         super().update(**kwargs)
@@ -94,7 +102,6 @@ class Enemy(Tank, ABC):
         super().kill()
         SoundsManager.enemy_running(False)
         SoundsManager.enemy_destroyed()
-        Explosion(self.pos, "big", self.expl_group)
 
 class SimpleEnemy(Enemy):
     sprite1 = "assets/sprites/tanks/enemy1_anim1.png"
@@ -105,6 +112,9 @@ class SimpleEnemy(Enemy):
     def __init__(self, pos, expl_group = None):
         super().__init__(pos, self.sprite1, self.sprite2, self.strategy, 1, 1, self.shoot_delay, expl_group)
 
+    def shoot(self):
+        pass
+
 class FastEnemy(Enemy):
     sprite1 = "assets/sprites/tanks/enemy2_anim1.png"
     sprite2 = "assets/sprites/tanks/enemy2_anim2.png"
@@ -114,25 +124,28 @@ class FastEnemy(Enemy):
     def __init__(self, pos, expl_group = None):
         super().__init__(pos, self.sprite1, self.sprite2, self.strategy, 3, 2, self.shoot_delay, expl_group)
 
+    def shoot(self):
+        pass
+
 
 class TankFactory(ABC):
-    def __init__(self, spawnpoint, anims_group):
-        if not isinstance(spawnpoint, pygame.Vector2):
-            logger.critical("Not correct spawnpoint")
-
+    def __init__(self, spawnpoint):
         self.spawnpoint = spawnpoint
-        self.anims_group = anims_group
 
     @abstractmethod
-    def spawn(self, group):
+    def spawn(self):
         pass
 
 
 class EnemyFactory(TankFactory):
-    def __init__(self, spawnpoint, anims_group, type_list):
-        super().__init__(spawnpoint, anims_group)
+    def __init__(self, spawnpoint, type_list, anims_group):
+        if not isinstance(spawnpoint, pygame.Vector2):
+            logger.critical("Not correct spawnpoint")
+
+        super().__init__(spawnpoint)
+        self.anims_group = anims_group
         self.enemy_type_dict = {0: SimpleEnemy, 1: FastEnemy}
-        self.type_list = [self.enemy_type_dict[i](self.spawnpoint, self.anims_group) for i in type_list]
+        self.type_list = [self.enemy_type_dict[i](self.spawnpoint, anims_group) for i in type_list]
         self.enemies_iter = iter(self.type_list)
 
     def spawn(self, enemies_group):
@@ -142,22 +155,3 @@ class EnemyFactory(TankFactory):
             logger.info(f"{type(new_enemy)} object spawned")
 
         SpawnAnim(self.spawnpoint, self.anims_group, create_enemy)
-
-
-class HeroFactory(TankFactory):
-    def __init__(self, spawnpoint, anims_group, hero_group, gameover_func):
-        super().__init__(spawnpoint, anims_group)
-        self.hero_group = hero_group
-        self.hero = Hero(self.spawnpoint, self.anims_group, self)
-        self.gameover_func = gameover_func
-
-    def spawn(self):
-        def create_hero():
-            self.hero.pos = self.spawnpoint
-            self.hero_group.add(self.hero)
-            logger.info("Hero spawned")
-
-        if self.hero.hp > 0:
-            SpawnAnim(self.spawnpoint, self.anims_group, create_hero).update()
-        else:
-            self.gameover_func()

@@ -95,13 +95,12 @@ class Menu(SceneBase):
 
 class Stage(SceneBase):
 
-    def __init__(self, screen, scene_manager, level, hero_factory):
+    def __init__(self, screen, scene_manager, level):
         super().__init__(screen, scene_manager)
 
         self.level = level
         self.map = "assets/stages/stage" + str(level)
         self.level_manager = level_manager.LevelLoader(self.map)
-        self.hero_factory = hero_factory
 
         self.background_color = BLACK
 
@@ -180,11 +179,12 @@ class Stage(SceneBase):
 
         level_obstacles, spawnpoint, base_pos, enemy_spawns = self.level_manager.load()
 
+        self.hero = tanks.Hero(spawnpoint, 3, self.animations_group)
         self.base = Base(base_pos, self, self.animations_group)
 
         self.obstacles_group = AddableGroup(level_obstacles)
         self.obstacles_group.add(self.base)
-        self.hero_group = AddableGroup()
+        self.hero_group = AddableGroup(self.hero)
         self.bullets = AddableGroup()
         self.enemies_group = AddableGroup()
 
@@ -194,29 +194,15 @@ class Stage(SceneBase):
             [0, 0, 0, 1, 0, 0, 0]
         ]
         enemy_factories = [
-            tanks.EnemyFactory(enemy_spawns[1], self.animations_group, enemy_types[1]),
-            tanks.EnemyFactory(enemy_spawns[2], self.animations_group, enemy_types[2]),
-            tanks.EnemyFactory(enemy_spawns[0], self.animations_group, enemy_types[0]),
+            tanks.EnemyFactory(enemy_spawns[1], enemy_types[1], self.animations_group),
+            tanks.EnemyFactory(enemy_spawns[2], enemy_types[2], self.animations_group),
+            tanks.EnemyFactory(enemy_spawns[0], enemy_types[0], self.animations_group),
         ]
         self.factories_iter = cycle(enemy_factories)
         self.enemy_spawn_count = 20
-        
-        # фабрика героя будет передаваться между уровнями и хранить в ней героя (если его не будет, то создавать)
-        # на первый уровень фабрики ещё не существует, а в следующих будут обновляться её атрибуты
-        if self.hero_factory is None:
-            self.hero_factory = tanks.HeroFactory(spawnpoint, self.animations_group, self.hero_group, self.game_over) 
-        elif isinstance(self.hero_factory, tanks.HeroFactory):
-            self.hero_factory.spawnpoint = spawnpoint
-            self.hero_factory.anims_group
-            self.hero_factory.hero_group = self.hero_group
-            self.hero_factory.gameover_func = self.game_over
-        else:
-            logger.error("Hero Factory's type is not correct")
-
-        self.hero_factory.spawn()
 
         self.hp_number_font = pygame.font.Font(NES_FONT, SMALL_FONT_SIZE * SC_SCALE)
-        self.hp_number = self.hp_number_font.render(f"{self.hero_factory.hero.hp}", False, BLACK, GREY)
+        self.hp_number = self.hp_number_font.render(f"{self.hero.hp}", False, BLACK, GREY)
         self.hp_number_rect = self.stage_number_icon.get_rect(size=(TILE_SIZE, TILE_SIZE))
         self.hp_number_rect.center = (SC_X_OBJ - 11 * SC_SCALE, 148 * SC_SCALE)
 
@@ -237,14 +223,14 @@ class Stage(SceneBase):
         hero_kwargs.update(entities=self.enemies_group)
 
         self.spawn_enemy()
+        self.hero_group.update(**hero_kwargs)
         self.enemies_group.update(**kwargs)
         self.bullets.update(**kwargs)
         self.animations_group.update()
-        self.hero_group.update(**hero_kwargs)
 
         self.enemies_count_rects = self.enemies_count_rects[: self.enemy_spawn_count]
 
-        self.hp_number = self.hp_number_font.render(f"{self.hero_factory.hero.hp}", False, BLACK, GREY)
+        self.hp_number = self.hp_number_font.render(f"{self.hero.hp}", False, BLACK, GREY)
 
         if self.gameover and self.gameover_rect.centery > SC_Y_OBJ / 2:
             self.gameover_rect.centery -= 1 * SC_SCALE
@@ -314,29 +300,28 @@ class Stage(SceneBase):
             if time.time() - self.last_kill_time > self.end_delay:
                 if path.isfile("assets/stages/stage" + str(self.level + 1)):
                     logger.info(f"Loading {self.level + 1} stage")
-                    next_scene = StageLoader(self.screen, self.scene_manager, self.level + 1, self.hero_factory)
+                    next_scene = StageLoader(self.screen, self.scene_manager, self.level + 1)
                     self.scene_manager.add_scene(f"StageLoader {self.level + 1}", next_scene)
                     self.scene_manager.switch_scene(f"StageLoader {self.level + 1}")
                 else:
                     logger.warning(f"New Stage is not found, starting from 1")
-                    next_scene = StageLoader(self.screen, self.scene_manager, 1, self.hero_factory)
+                    next_scene = StageLoader(self.screen, self.scene_manager, 1)
                     self.scene_manager.add_scene(f"StageLoader 1", next_scene)
                     self.scene_manager.switch_scene(f"StageLoader 1")
 
     def game_over(self):
         logger.info("Game Over")
-        self.hero_factory.hero.strategy = NoMovement()
+        self.hero.strategy = NoMovement()
         self.gameover_timer = time.time()
         self.gameover = True
 
 
 class StageLoader(SceneBase):
-    def __init__(self, screen, scene_manager, level, hero_factory = None):
+    def __init__(self, screen, scene_manager, level):
         super().__init__(screen, scene_manager)
 
         self.background_color = GREY
         self.level = level
-        self.hero_factory = hero_factory
 
         self.stage_font = pygame.font.Font(NES_FONT, FONT_SIZE * SC_SCALE)
         self.stage_text = self.stage_font.render(
@@ -354,7 +339,7 @@ class StageLoader(SceneBase):
         SoundsManager.pause(False)
         SoundsManager.startlevel()
         time.sleep(3)
-        next_scene = Stage(self.screen, self.scene_manager, self.level, self.hero_factory)
+        next_scene = Stage(self.screen, self.scene_manager, self.level)
         self.scene_manager.add_scene(f"Stage {self.level}", next_scene)
         self.scene_manager.switch_scene(f"Stage {self.level}")
 
