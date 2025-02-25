@@ -9,9 +9,9 @@ from abc import ABC, abstractmethod
 from constants import *
 from set_sprites import AddableGroup, Base
 from logger import logger
-from bullet import Bullet
 from strategies import NoMovement
 from sounds_manager import SoundsManager
+from score_manager import ScoreManager
 
 
 class SceneBase(ABC):
@@ -56,21 +56,24 @@ class Menu(SceneBase):
             pygame.image.load("assets/misc/logo.png").convert(), 0.35 * SC_SCALE
         )
         self.logo_rect = self.logo.get_rect()
-        self.logo_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ * 0.540)
+        self.logo_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ * 0.57)
 
         self.tank_logo = pygame.transform.scale_by(
             pygame.image.load("assets/misc/tank_logo.png").convert(), 0.14 * SC_SCALE
         )
         self.tank_logo_rect = self.tank_logo.get_rect()
-        self.tank_logo_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ * 0.2)
+        self.tank_logo_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ * 0.23)
 
     def setup(self):
         logger.info("Menu setup")
+
+        score, score_rect = ScoreManager.render(WHITE)
 
         self.screen.fill(self.background_color)
         self.screen.blit(self.start_button, self.start_button_rect)
         self.screen.blit(self.logo, self.logo_rect)
         self.screen.blit(self.tank_logo, self.tank_logo_rect)
+        self.screen.blit(score, score_rect)
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -257,6 +260,7 @@ class Stage(SceneBase):
         self.check_level_end()
 
     def render(self):
+        score, score_rect = ScoreManager.render(BLACK)
         self.screen.fill(self.background_color)
         self.screen.blit(self.top_hud, (0, 0))
         self.screen.blit(self.left_hud, (0, 0))
@@ -273,6 +277,7 @@ class Stage(SceneBase):
         self.screen.blit(self.stage_number_icon, self.stage_number_icon_rect)
         self.screen.blit(self.stage_number, self.stage_number_rect)
         self.screen.blit(self.gameover_image, self.gameover_rect)
+        self.screen.blit(score, score_rect)        
 
         for rect in self.enemies_count_rects:
             self.screen.blit(self.enemies_count_image, rect)
