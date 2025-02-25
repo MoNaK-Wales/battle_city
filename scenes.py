@@ -352,24 +352,28 @@ class StageLoader(SceneBase):
         self.stage_text_rect = self.stage_text.get_rect()
         self.stage_text_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ / 2)
 
+        self.next_scene = Stage(self.screen, self.scene_manager, self.level, self.hero_factory)
+
+        self.screen_time = FPS * STAGELOADER_TIME
+        self.timer = 0
+
     def setup(self):
         logger.info("StageLoader setup")
-        self.screen.fill(self.background_color)
-        self.screen.blit(self.stage_text, self.stage_text_rect)
-        pygame.display.flip()
+
         SoundsManager.pause(True)
         SoundsManager.pause(False)
         SoundsManager.startlevel()
-        time.sleep(3)
-        next_scene = Stage(self.screen, self.scene_manager, self.level, self.hero_factory)
-        self.scene_manager.add_scene(f"Stage {self.level}", next_scene)
-        self.scene_manager.switch_scene(f"Stage {self.level}")
 
     def update(self):
-        pass
+        if self.timer >= self.screen_time:
+            self.scene_manager.add_scene(f"Stage {self.level}", self.next_scene)
+            self.scene_manager.switch_scene(f"Stage {self.level}")
+        else:
+            self.timer += 1
 
     def render(self):
-        pass
+        self.screen.fill(self.background_color)
+        self.screen.blit(self.stage_text, self.stage_text_rect)
 
     def handle_event(self, event):
         pass
@@ -386,7 +390,7 @@ class GameOver(SceneBase):
         self.gameover_icon_rect = self.gameover_icon.get_rect()
         self.gameover_icon_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ / 2)
 
-        self.screen_time = FPS * 3  # 3 секунды
+        self.screen_time = FPS * GAMEOVER_SCREEN_TIME
         self.timer = 0
 
     def setup(self):
