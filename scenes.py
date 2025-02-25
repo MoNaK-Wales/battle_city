@@ -252,7 +252,7 @@ class Stage(SceneBase):
             self.gameover_rect.centery -= 1 * SC_SCALE
 
         if self.gameover and time.time() - self.gameover_timer > self.end_delay:
-            self.scene_manager.switch_scene("Menu")
+            self.scene_manager.switch_scene("Game over")
 
         self.check_level_end()
 
@@ -372,6 +372,40 @@ class StageLoader(SceneBase):
 
     def cleanup(self):
         logger.info("StageLoader cleanup")
+
+
+class GameOver(SceneBase):
+    def __init__(self, screen, scene_manager):
+        super().__init__(screen, scene_manager)
+
+        self.gameover_icon = pygame.transform.scale_by(pygame.image.load("assets/misc/gameover_screen.png").convert_alpha(), SC_SCALE)
+        self.gameover_icon_rect = self.gameover_icon.get_rect()
+        self.gameover_icon_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ / 2)
+
+        self.screen_time = FPS * 3  # 3 секунды
+        self.timer = 0
+
+    def setup(self):
+        logger.info("GAME OVER screen")
+
+        SoundsManager.pause(True)
+        SoundsManager.pause(False)
+        SoundsManager.gameover()
+    
+    def update(self):
+        if self.timer >= self.screen_time:
+            self.scene_manager.switch_scene("Menu")
+        else:
+            self.timer += 1
+    
+    def render(self):
+        self.screen.blit(self.gameover_icon, self.gameover_icon_rect)
+    
+    def handle_event(self, event):
+        pass
+    
+    def cleanup(self):
+        pass
 
 
 class SceneManager:

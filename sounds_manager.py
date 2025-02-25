@@ -5,6 +5,7 @@ class SoundsManager:
     pygame.mixer.init()
 
     start_music = pygame.mixer.Sound("assets/sounds/start music.mp3")
+    gameover_music = pygame.mixer.Sound("assets/sounds/game over music.mp3")
     hero_running_music = pygame.mixer.Sound("assets/sounds/running.wav")
     hero_running_music.set_volume(0.4)
     enemy_running_music = pygame.mixer.Sound("assets/sounds/running 2.wav")
@@ -31,6 +32,10 @@ class SoundsManager:
     @staticmethod
     def startlevel():
         SoundsManager.start_music.play()
+
+    @staticmethod
+    def gameover():
+        SoundsManager.gameover_music.play()
 
     @staticmethod
     def hero_running(pos, initial_pos):
