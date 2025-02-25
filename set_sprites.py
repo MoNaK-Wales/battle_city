@@ -129,7 +129,9 @@ class Base(Obstacle):
 
         Explosion(self.pos, "big", self.expl_group)
         SoundsManager.player_destroyed()
-        self.stage_scene.game_over()
+
+        if not self.stage_scene.gameover:
+            self.stage_scene.game_over()
 
 
 class AddableGroup(pygame.sprite.Group):

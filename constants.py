@@ -26,6 +26,10 @@ WHITE = (255, 255, 255)
 GREY = (99, 99, 99)
 NES_FONT = "assets/fonts/nes-font.ttf"
 
+GAMEOVER_TIME = 3
+
+DEBUG_ENEMIES_AMOUNT = 20
+
 
 # strategies
 PAUSE = False
