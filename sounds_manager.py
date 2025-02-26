@@ -2,7 +2,7 @@ import pygame
 
 
 class SoundsManager:
-    pygame.mixer.init()
+    pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
 
     start_music = pygame.mixer.Sound("assets/sounds/start music.mp3")
     gameover_music = pygame.mixer.Sound("assets/sounds/game over music.mp3")
@@ -15,6 +15,7 @@ class SoundsManager:
     bullet_bricks_music = pygame.mixer.Sound("assets/sounds/shooting bricks.wav")
     enemy_destroyed_music = pygame.mixer.Sound("assets/sounds/enemy destroy.wav")
     player_destroyed_music = pygame.mixer.Sound("assets/sounds/player destroy.wav")
+    hp_up_music = pygame.mixer.Sound("assets/sounds/1up.wav")
 
     pause_music = pygame.mixer.Sound("assets/sounds/pause.wav")
     channel_pause = pygame.mixer.Channel(3)
@@ -74,6 +75,10 @@ class SoundsManager:
     @staticmethod
     def player_destroyed():
         SoundsManager.player_destroyed_music.play()
+
+    @staticmethod
+    def hp_up():
+        SoundsManager.hp_up_music.play()
 
     @staticmethod
     def pause_play():
