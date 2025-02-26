@@ -16,6 +16,7 @@ class SoundsManager:
     enemy_destroyed_music = pygame.mixer.Sound("assets/sounds/enemy destroy.wav")
     player_destroyed_music = pygame.mixer.Sound("assets/sounds/player destroy.wav")
     hp_up_music = pygame.mixer.Sound("assets/sounds/1up.wav")
+    scoring_music = pygame.mixer.Sound("assets/sounds/scoring.wav")
 
     pause_music = pygame.mixer.Sound("assets/sounds/pause.wav")
     channel_pause = pygame.mixer.Channel(3)
@@ -79,6 +80,10 @@ class SoundsManager:
     @staticmethod
     def hp_up():
         SoundsManager.hp_up_music.play()
+    
+    @staticmethod
+    def scoring():
+        SoundsManager.scoring_music.play()
 
     @staticmethod
     def pause_play():

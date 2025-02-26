@@ -27,6 +27,8 @@ class ScoreManager:
 
     given_hp_up = 0
 
+    stage_adding = 0
+
     high_score_path = "saves/high score.dat"
 
     @staticmethod
@@ -57,6 +59,7 @@ class ScoreManager:
 
         ScoreManager.plus_text = f"{adding}À"
         ScoreManager.plus_text_timer = 0
+        ScoreManager.stage_adding += adding
 
     @staticmethod
     def clear_score():
