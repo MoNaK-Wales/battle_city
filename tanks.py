@@ -143,10 +143,15 @@ class ArmorEnemy(Enemy):
 
     def __init__(self, pos, expl_group = None):
         super().__init__(pos, self.sprite1, self.sprite2, self.strategy, 2, 2, self.shoot_delay, expl_group)
+        self.hp = 4
 
     def kill(self):
-        super().kill()
-        ScoreManager.add("Armor")
+        self.hp -= 1
+        if self.hp == 0:
+            super().kill()
+            ScoreManager.add("Armor")
+        else:
+            SoundsManager.bullet_wall()
 
 
 class TankFactory(ABC):
