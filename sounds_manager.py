@@ -2,9 +2,10 @@ import pygame
 
 
 class SoundsManager:
-    pygame.mixer.init()
+    pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=512)
 
     start_music = pygame.mixer.Sound("assets/sounds/start music.mp3")
+    gameover_music = pygame.mixer.Sound("assets/sounds/game over music.mp3")
     hero_running_music = pygame.mixer.Sound("assets/sounds/running.wav")
     hero_running_music.set_volume(0.4)
     enemy_running_music = pygame.mixer.Sound("assets/sounds/running 2.wav")
@@ -14,6 +15,8 @@ class SoundsManager:
     bullet_bricks_music = pygame.mixer.Sound("assets/sounds/shooting bricks.wav")
     enemy_destroyed_music = pygame.mixer.Sound("assets/sounds/enemy destroy.wav")
     player_destroyed_music = pygame.mixer.Sound("assets/sounds/player destroy.wav")
+    hp_up_music = pygame.mixer.Sound("assets/sounds/1up.wav")
+    scoring_music = pygame.mixer.Sound("assets/sounds/scoring.wav")
 
     pause_music = pygame.mixer.Sound("assets/sounds/pause.wav")
     channel_pause = pygame.mixer.Channel(3)
@@ -31,6 +34,10 @@ class SoundsManager:
     @staticmethod
     def startlevel():
         SoundsManager.start_music.play()
+
+    @staticmethod
+    def gameover():
+        SoundsManager.gameover_music.play()
 
     @staticmethod
     def hero_running(pos, initial_pos):
@@ -71,6 +78,14 @@ class SoundsManager:
         SoundsManager.player_destroyed_music.play()
 
     @staticmethod
+    def hp_up():
+        SoundsManager.hp_up_music.play()
+    
+    @staticmethod
+    def scoring():
+        SoundsManager.scoring_music.play()
+
+    @staticmethod
     def pause_play():
         SoundsManager.channel_pause.play(SoundsManager.pause_music)
 
@@ -80,5 +95,7 @@ class SoundsManager:
             pygame.mixer.pause()
         else:
             pygame.mixer.unpause()
-            if SoundsManager.channel_enemy_paused:
-                SoundsManager.channel_enemy.pause()
+            SoundsManager.channel_enemy.pause()
+            SoundsManager.channel_enemy_paused = True
+            SoundsManager.channel_player.pause()
+            SoundsManager.channel_player_paused = True

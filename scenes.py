@@ -9,9 +9,9 @@ from abc import ABC, abstractmethod
 from constants import *
 from set_sprites import AddableGroup, Base
 from logger import logger
-from bullet import Bullet
 from strategies import NoMovement
 from sounds_manager import SoundsManager
+from score_manager import ScoreManager
 
 
 class SceneBase(ABC):
@@ -56,31 +56,38 @@ class Menu(SceneBase):
             pygame.image.load("assets/misc/logo.png").convert(), 0.35 * SC_SCALE
         )
         self.logo_rect = self.logo.get_rect()
-        self.logo_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ * 0.540)
+        self.logo_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ * 0.57)
 
         self.tank_logo = pygame.transform.scale_by(
             pygame.image.load("assets/misc/tank_logo.png").convert(), 0.14 * SC_SCALE
         )
         self.tank_logo_rect = self.tank_logo.get_rect()
-        self.tank_logo_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ * 0.2)
+        self.tank_logo_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ * 0.23)
 
     def setup(self):
         logger.info("Menu setup")
+
+        score, score_rect, score_plus, score_plus_rect = ScoreManager.render(WHITE)
 
         self.screen.fill(self.background_color)
         self.screen.blit(self.start_button, self.start_button_rect)
         self.screen.blit(self.logo, self.logo_rect)
         self.screen.blit(self.tank_logo, self.tank_logo_rect)
+        self.screen.blit(score, score_rect)
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = event.pos
             if self.start_button_rect.collidepoint(mouse_x, mouse_y):
                 logger.debug(f"LMB click on start button at {event.pos}")
+                new_stage = StageLoader(self.screen, self.scene_manager, 1)
+                self.scene_manager.add_scene("StageLoader 1", new_stage)
                 self.scene_manager.switch_scene("StageLoader 1")
         elif event.type == pygame.KEYDOWN:
             if pygame.key.get_pressed()[pygame.K_RETURN]:  # enter
                 logger.debug(f"Starting game via enter")
+                new_stage = StageLoader(self.screen, self.scene_manager, 1)
+                self.scene_manager.add_scene("StageLoader 1", new_stage)
                 self.scene_manager.switch_scene("StageLoader 1")
 
     def render(self):
@@ -92,9 +99,10 @@ class Menu(SceneBase):
     def cleanup(self):
         logger.info("Menu cleanup")
 
+        ScoreManager.clear_score()
+
 
 class Stage(SceneBase):
-
     def __init__(self, screen, scene_manager, level, hero_factory):
         super().__init__(screen, scene_manager)
 
@@ -162,7 +170,7 @@ class Stage(SceneBase):
         self.animations_group = AddableGroup()
 
         self.end_delay = GAMEOVER_TIME
-        self.last_kill_time = None
+        self.last_kill_timer = None
 
         self.pause = False
         self.pause_image = pygame.transform.scale_by(
@@ -248,15 +256,26 @@ class Stage(SceneBase):
 
         self.hp_number = self.hp_number_font.render(f"{self.hero_factory.hero.hp}", False, BLACK, GREY)
 
+        if ScoreManager.score // HP_UP_SCORE > ScoreManager.given_hp_up:
+            self.hero_factory.hero.hp += 1
+            ScoreManager.given_hp_up += 1
+            SoundsManager.hp_up()
+
         if self.gameover and self.gameover_rect.centery > SC_Y_OBJ / 2:
             self.gameover_rect.centery -= 1 * SC_SCALE
 
-        if self.gameover and time.time() - self.gameover_timer > self.end_delay:
-            self.scene_manager.switch_scene("Menu")
+        if self.gameover:
+            if self.gameover_timer > self.end_delay:
+                next_scene = ScoreScene(self.screen, self.scene_manager)
+                self.scene_manager.add_scene("Game over score", next_scene)
+                self.scene_manager.switch_scene("Game over score")
+            else:
+                self.gameover_timer += 1
 
         self.check_level_end()
 
     def render(self):
+        score, score_rect, score_plus, score_plus_rect = ScoreManager.render(BLACK)
         self.screen.fill(self.background_color)
         self.screen.blit(self.top_hud, (0, 0))
         self.screen.blit(self.left_hud, (0, 0))
@@ -273,6 +292,8 @@ class Stage(SceneBase):
         self.screen.blit(self.stage_number_icon, self.stage_number_icon_rect)
         self.screen.blit(self.stage_number, self.stage_number_rect)
         self.screen.blit(self.gameover_image, self.gameover_rect)
+        self.screen.blit(score, score_rect)
+        self.screen.blit(score_plus, score_plus_rect)
 
         for rect in self.enemies_count_rects:
             self.screen.blit(self.enemies_count_image, rect)
@@ -311,25 +332,27 @@ class Stage(SceneBase):
 
     def check_level_end(self):
         if self.enemy_spawn_count == 0 and len(self.enemies_group) == 0:
-            if self.last_kill_time is None:
-                self.last_kill_time = time.time()
+            if self.last_kill_timer is None:
+                self.last_kill_timer = 0
+                ScoreManager.add("Level")
 
-            if time.time() - self.last_kill_time > self.end_delay:
+            if self.last_kill_timer > self.end_delay:
                 if path.isfile("assets/stages/stage" + str(self.level + 1)):
                     logger.info(f"Loading {self.level + 1} stage")
-                    next_scene = StageLoader(self.screen, self.scene_manager, self.level + 1, self.hero_factory)
-                    self.scene_manager.add_scene(f"StageLoader {self.level + 1}", next_scene)
-                    self.scene_manager.switch_scene(f"StageLoader {self.level + 1}")
+                    next_scene = ScoreScene(self.screen, self.scene_manager, False, self.level + 1, self.hero_factory)
+                    self.scene_manager.add_scene(f"ScoreScene {self.level + 1}", next_scene)
+                    self.scene_manager.switch_scene(f"ScoreScene {self.level + 1}")
                 else:
                     logger.warning(f"New Stage is not found, starting from 1")
-                    next_scene = StageLoader(self.screen, self.scene_manager, 1, self.hero_factory)
-                    self.scene_manager.add_scene(f"StageLoader 1", next_scene)
-                    self.scene_manager.switch_scene(f"StageLoader 1")
+                    next_scene = ScoreScene(self.screen, self.scene_manager, False, 1, self.hero_factory)
+                    self.scene_manager.add_scene(f"ScoreScene 1", next_scene)
+                    self.scene_manager.switch_scene(f"ScoreScene 1")
+            else:
+                self.last_kill_timer += 1
 
     def game_over(self):
         logger.info("Game Over")
         self.hero_factory.hero.strategy = NoMovement()
-        self.gameover_timer = time.time()
         self.gameover = True
 
 
@@ -348,30 +371,164 @@ class StageLoader(SceneBase):
         self.stage_text_rect = self.stage_text.get_rect()
         self.stage_text_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ / 2)
 
+        self.next_scene = Stage(self.screen, self.scene_manager, self.level, self.hero_factory)
+
+        self.screen_time = FPS * STAGELOADER_TIME
+        self.timer = 0
+
     def setup(self):
         logger.info("StageLoader setup")
-        self.screen.fill(self.background_color)
-        self.screen.blit(self.stage_text, self.stage_text_rect)
-        pygame.display.flip()
+
         SoundsManager.pause(True)
         SoundsManager.pause(False)
         SoundsManager.startlevel()
-        time.sleep(3)
-        next_scene = Stage(self.screen, self.scene_manager, self.level, self.hero_factory)
-        self.scene_manager.add_scene(f"Stage {self.level}", next_scene)
-        self.scene_manager.switch_scene(f"Stage {self.level}")
 
     def update(self):
-        pass
+        if self.timer >= self.screen_time:
+            self.scene_manager.add_scene(f"Stage {self.level}", self.next_scene)
+            self.scene_manager.switch_scene(f"Stage {self.level}")
+        else:
+            self.timer += 1
 
     def render(self):
-        pass
+        self.screen.fill(self.background_color)
+        self.screen.blit(self.stage_text, self.stage_text_rect)
 
     def handle_event(self, event):
         pass
 
     def cleanup(self):
         logger.info("StageLoader cleanup")
+
+
+class GameOver(SceneBase):
+    def __init__(self, screen, scene_manager):
+        super().__init__(screen, scene_manager)
+
+        self.gameover_icon = pygame.transform.scale_by(pygame.image.load("assets/misc/gameover_screen.png").convert_alpha(), SC_SCALE)
+        self.gameover_icon_rect = self.gameover_icon.get_rect()
+        self.gameover_icon_rect.center = (SC_X_OBJ / 2, SC_Y_OBJ / 2)
+
+        self.screen_time = FPS * GAMEOVER_SCREEN_TIME
+        self.timer = 0
+
+    def setup(self):
+        logger.info("GAME OVER screen")
+
+        SoundsManager.pause(True)
+        SoundsManager.pause(False)
+        SoundsManager.gameover()
+    
+    def update(self):
+        if self.timer >= self.screen_time:
+            self.scene_manager.switch_scene("Menu")
+        else:
+            self.timer += 1
+    
+    def render(self):
+        self.screen.blit(self.gameover_icon, self.gameover_icon_rect)
+    
+    def handle_event(self, event):
+        pass
+    
+    def cleanup(self):
+        pass
+
+
+class ScoreScene(SceneBase):
+    def __init__(self, screen, scene_manager, is_gameover = True, level = None, hero_factory = None):
+        super().__init__(screen, scene_manager)
+
+        self.background_color = BLACK
+        self.level = level
+        self.hero_factory = hero_factory
+
+        self.stage_score = ScoreManager.stage_adding
+        self.total_score_was = ScoreManager.score - ScoreManager.stage_adding
+
+        self.stage_added_score = 0
+        self.total_added_score = self.total_score_was
+
+        self.scoring_frame_delay = 1/7 * FPS
+        self.next_scene_delay = STAGELOADER_TIME * FPS
+        self.stage_scoring_timer = 0
+        self.total_scoring_timer = -1
+        self.next_scene_timer = -1
+        
+        """
+        STAGE PTS: 00000
+        TOTAL PTS: 00000
+        """
+
+        self.stage_pts_str = "STAGE PTS: 00000"
+        self.stage_pts_font = pygame.font.Font(NES_FONT, SMALL_FONT_SIZE * SC_SCALE)
+        self.stage_pts_text = self.stage_pts_font.render(self.stage_pts_str, False, WHITE, BLACK)
+        self.stage_pts_rect = self.stage_pts_text.get_rect()
+        self.stage_pts_rect.midbottom = (SC_X_OBJ / 2, SC_Y_OBJ / 2)
+
+        self.total_pts_str = f"TOTAL PTS: {self.total_score_was:05d}"
+        self.total_pts_font = pygame.font.Font(NES_FONT, SMALL_FONT_SIZE * SC_SCALE)
+        self.total_pts_text = self.total_pts_font.render(self.total_pts_str, False, WHITE, BLACK)
+        self.total_pts_rect = self.total_pts_text.get_rect()
+        self.total_pts_rect.midtop = (SC_X_OBJ / 2, SC_Y_OBJ / 2)
+
+        if is_gameover:
+            self.next_scene = "Game over"
+        else:
+            scene = StageLoader(self.screen, self.scene_manager, self.level, self.hero_factory)
+            self.next_scene = f"StageLoader {self.level}"
+            self.scene_manager.add_scene(self.next_scene, scene)
+
+    def setup(self):
+        logger.info("Score scene setup, saving high score")
+
+        ScoreManager.save_high_score()
+
+    def update(self):
+        if self.stage_scoring_timer > self.scoring_frame_delay and self.total_scoring_timer == -1:
+            if self.stage_added_score < self.stage_score:
+                self.stage_added_score += 100
+                self.stage_pts_str = f"STAGE PTS: {self.stage_added_score:05d}"
+                SoundsManager.scoring()
+                self.stage_scoring_timer = 0
+            else:
+                self.total_scoring_timer = -50.5  # чтобы была задержка и при этом он не был в значении -1
+        else:
+            self.stage_scoring_timer += 1
+
+        if self.total_scoring_timer > self.scoring_frame_delay and self.next_scene_timer == -1:
+            if self.total_added_score < ScoreManager.score:
+                self.total_added_score += 100
+                self.total_pts_str = f"TOTAL PTS: {self.total_added_score:05d}"
+                SoundsManager.scoring()
+                self.total_scoring_timer = 0
+            else:
+                self.next_scene_timer = 0
+        elif self.total_scoring_timer != -1:
+            self.total_scoring_timer += 1
+
+        if self.next_scene_timer > self.next_scene_delay:
+            self.scene_manager.switch_scene(self.next_scene)
+        elif self.next_scene_timer != -1:
+            self.next_scene_timer += 1
+
+        
+        self.stage_pts_text = self.stage_pts_font.render(self.stage_pts_str, False, WHITE, BLACK)
+        self.total_pts_text = self.total_pts_font.render(self.total_pts_str, False, WHITE, BLACK)
+
+    def render(self):
+        score, score_rect, score_plus, score_plus_rect = ScoreManager.render(WHITE)
+
+        self.screen.fill(self.background_color)
+        self.screen.blit(score, score_rect)
+        self.screen.blit(self.stage_pts_text, self.stage_pts_rect)
+        self.screen.blit(self.total_pts_text, self.total_pts_rect)
+
+    def handle_event(self, event):
+        pass
+
+    def cleanup(self):
+        ScoreManager.stage_adding = 0
 
 
 class SceneManager:

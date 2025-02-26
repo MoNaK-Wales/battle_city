@@ -6,8 +6,9 @@ from itertools import cycle
 from abc import ABC, abstractmethod
 from set_sprites import Entity
 from logger import logger
-from sounds_manager import SoundsManager
 from anims import Explosion, SpawnAnim
+from sounds_manager import SoundsManager
+from score_manager import ScoreManager
 
 
 class Tank(Entity):
@@ -104,6 +105,10 @@ class SimpleEnemy(Enemy):
     def __init__(self, pos, expl_group = None):
         super().__init__(pos, self.sprite1, self.sprite2, self.strategy, 1, 1, self.shoot_delay, expl_group)
 
+    def kill(self):
+        super().kill()
+        ScoreManager.add("Simple")
+
 class FastEnemy(Enemy):
     sprite1 = "assets/sprites/tanks/enemy2_anim1.png"
     sprite2 = "assets/sprites/tanks/enemy2_anim2.png"
@@ -112,6 +117,10 @@ class FastEnemy(Enemy):
 
     def __init__(self, pos, expl_group = None):
         super().__init__(pos, self.sprite1, self.sprite2, self.strategy, 3, 2, self.shoot_delay, expl_group)
+
+    def kill(self):
+        super().kill()
+        ScoreManager.add("Fast")
 
 
 class TankFactory(ABC):
