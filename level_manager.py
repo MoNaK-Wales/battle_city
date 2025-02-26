@@ -13,6 +13,7 @@ class LevelLoader:
         "#": Brick,
         "@": Wall,
         "%": Foliage,
+        "~": Water,
         "B": pygame.Vector2,
         "H": pygame.Vector2,
         "E": pygame.Vector2

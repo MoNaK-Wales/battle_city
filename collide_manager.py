@@ -1,7 +1,7 @@
 import pygame
 from logger import logger
 from bullet import Bullet
-from set_sprites import Entity, Obstacle, Wall, Brick, Foliage, Base
+from set_sprites import Entity, Obstacle, Wall, Brick, Foliage, Base, Water
 from sounds_manager import SoundsManager
 
 
@@ -14,8 +14,8 @@ class CollideManager:
             )
             raise TypeError("First arg must be Entity, the second one must be Obstacle (or just Rect for HUD)")
 
+        collide = entity.rect.colliderect(obstacle)
         if isinstance(obstacle, (pygame.Rect, Wall, Brick, Base)):
-            collide = entity.rect.colliderect(obstacle)
             if isinstance(entity, Bullet) and collide:
                 if isinstance(obstacle, (Brick, Base)):
                     SoundsManager.bullet_bricks()
@@ -26,6 +26,11 @@ class CollideManager:
             return collide
         elif isinstance(obstacle, Foliage):
             return False
+        elif isinstance(obstacle, Water):
+            if isinstance(entity, Bullet):
+                return False
+            else:
+                return collide
 
         logger.error("Not correct Entity object was given, returning False")
         return False

@@ -111,6 +111,10 @@ class Foliage(Obstacle):
     def __init__(self, pos):
         super().__init__(pos, "assets/blocks/foliage.png")
 
+class Water(Obstacle):
+    def __init__(self, pos):
+        super().__init__(pos, "assets/blocks/water.png")
+
 class Base(Obstacle):
 
     def __init__(self, pos, stage_scene, expl_group):
