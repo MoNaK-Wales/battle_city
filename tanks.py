@@ -122,6 +122,32 @@ class FastEnemy(Enemy):
         super().kill()
         ScoreManager.add("Fast")
 
+class PowerEnemy(Enemy):
+    sprite1 = "assets/sprites/tanks/enemy3_anim1.png"
+    sprite2 = "assets/sprites/tanks/enemy3_anim2.png"
+    strategy = strategies.EnemyNormalStrategy
+    shoot_delay = 2/3 * constants.FPS
+
+    def __init__(self, pos, expl_group = None):
+        super().__init__(pos, self.sprite1, self.sprite2, self.strategy, 2, 3, self.shoot_delay, expl_group)
+
+    def kill(self):
+        super().kill()
+        ScoreManager.add("Power")
+
+class ArmorEnemy(Enemy):
+    sprite1 = "assets/sprites/tanks/enemy4_anim1.png"
+    sprite2 = "assets/sprites/tanks/enemy4_anim2.png"
+    strategy = strategies.EnemyNormalStrategy
+    shoot_delay = 4/3 * constants.FPS
+
+    def __init__(self, pos, expl_group = None):
+        super().__init__(pos, self.sprite1, self.sprite2, self.strategy, 2, 2, self.shoot_delay, expl_group)
+
+    def kill(self):
+        super().kill()
+        ScoreManager.add("Armor")
+
 
 class TankFactory(ABC):
     def __init__(self, spawnpoint, anims_group):
@@ -139,7 +165,7 @@ class TankFactory(ABC):
 class EnemyFactory(TankFactory):
     def __init__(self, spawnpoint, anims_group, type_list):
         super().__init__(spawnpoint, anims_group)
-        self.enemy_type_dict = {0: SimpleEnemy, 1: FastEnemy}
+        self.enemy_type_dict = {0: SimpleEnemy, 1: FastEnemy, 2: PowerEnemy, 3: ArmorEnemy}
         self.type_list = [self.enemy_type_dict[i](self.spawnpoint, self.anims_group) for i in type_list]
         self.enemies_iter = iter(self.type_list)
 

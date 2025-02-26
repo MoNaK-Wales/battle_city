@@ -114,7 +114,7 @@ class EnemyStrategy(MoveStrategy):
     def fire(self):
         if self.last_shot >= self.shoot_delay and random.randint(1, 10) < 8:        # 70%
             bullet_pos = pygame.Vector2(self.entity.rect.center) + pygame.Vector2(self.bullet_pos[self.entity.angle])
-            Bullet(bullet_pos, self.entity.angle, True, self.bullets, self.anims, 2, True)
+            Bullet(bullet_pos, self.entity.angle, True, self.bullets, self.anims, self.entity.bullet_speed, True)
             self.last_shot = 0
         else:
             self.last_shot += 1
