@@ -28,12 +28,13 @@ class LevelLoader:
         self.enemy_spawns = []
         self.spawnpoint = None
         self.base_pos = None
+        self.enemy_types = []
 
     def load(self):
         with open(self.filename, "r") as file:
             level_map = [line.strip() for line in file.readlines()]
 
-        for row_idx, row in enumerate(level_map):
+        for row_idx, row in enumerate(level_map[:-3]):
             for col_idx, cell in enumerate(row):
                 x = col_idx * self.TILE_SIZE + self.OFFSET.x
                 y = row_idx * self.TILE_SIZE + self.OFFSET.y
@@ -48,4 +49,8 @@ class LevelLoader:
                     else:
                         self.objects.append(self.SYMBOLS[cell]((x, y)))
 
-        return self.objects, self.spawnpoint, self.base_pos, self.enemy_spawns
+        for row in level_map[-3:]:
+            enemy_row = [int(char) for char in row]
+            self.enemy_types.append(enemy_row)
+
+        return self.objects, self.spawnpoint, self.base_pos, self.enemy_spawns, self.enemy_types

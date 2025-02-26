@@ -186,7 +186,7 @@ class Stage(SceneBase):
     def setup(self):
         logger.info("Stage setup")
 
-        level_obstacles, spawnpoint, base_pos, enemy_spawns = self.level_manager.load()
+        level_obstacles, spawnpoint, base_pos, enemy_spawns, enemy_types = self.level_manager.load()
 
         self.base = Base(base_pos, self, self.animations_group)
 
@@ -196,11 +196,6 @@ class Stage(SceneBase):
         self.bullets = AddableGroup()
         self.enemies_group = AddableGroup()
 
-        enemy_types = [
-            [0, 0, 0, 0, 0, 0],                     #временно для проверки
-            [0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0]
-        ]
         enemy_factories = [
             tanks.EnemyFactory(enemy_spawns[1], self.animations_group, enemy_types[1]),
             tanks.EnemyFactory(enemy_spawns[2], self.animations_group, enemy_types[2]),
