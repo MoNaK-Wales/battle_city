@@ -18,8 +18,10 @@ def run_game():
     scene_manager = SceneManager(screen)
     menu = Menu(screen, scene_manager)
     stage1 = StageLoader(screen, scene_manager, 1)
+    gameover = GameOver(screen, scene_manager)
     scene_manager.add_scene("Menu", menu)
     scene_manager.add_scene("StageLoader 1", stage1)
+    scene_manager.add_scene("Game over", gameover)
     scene_manager.switch_scene("Menu")
 
     logger.info("Run game")
